@@ -25,7 +25,7 @@ public class UIManager : Singleton<UIManager>
     {
         for (int i = 0; i < lineRenderers.Count; i++)
         {
-            lineRenderers[0].gameObject.SetActive(false);
+            lineRenderers[i].gameObject.SetActive(false);
         }
 
         centerNormal = Vector3.zero;
@@ -33,7 +33,6 @@ public class UIManager : Singleton<UIManager>
 
     void DrawLine(Vector3 start,Vector3 normal,int lineIndex = 0)
     {
-        lineRenderers[lineIndex].gameObject.SetActive(true);
         lineRenderers[lineIndex].SetPosition(0, start);
 
         int layerMask = (1 << LayerMask.NameToLayer("Wall")) | (1 << LayerMask.NameToLayer("TopWall"));
@@ -41,8 +40,28 @@ public class UIManager : Singleton<UIManager>
 
         if (hit.collider != null)
         {
-            lineRenderers[lineIndex].SetPosition(1, hit.point);
+            lineRenderers[lineIndex].SetPosition(1, hit.point * .95f);
             lineRenderers[lineIndex].gameObject.SetActive(true);
+
+            if (hit.collider.gameObject.layer == LayerMask.NameToLayer("Wall") && lineIndex + 1 < lineRenderers.Count)
+            {
+                normal.x *= -1;
+                DrawLine(hit.point * .95f, normal, lineIndex + 1);
+            }
+            else
+            {
+                for (int i = lineIndex + 1; i < lineRenderers.Count; i++)
+                {
+                    lineRenderers[i].gameObject.SetActive(false);
+                }
+            }
+        }
+        else
+        {
+            for (int i = lineIndex + 1; i < lineRenderers.Count; i++)
+            {
+                lineRenderers[i].gameObject.SetActive(false);
+            }
         }
     }
 }
