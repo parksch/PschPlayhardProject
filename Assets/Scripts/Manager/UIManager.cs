@@ -106,4 +106,12 @@ public class UIManager : Singleton<UIManager>
         currentPanel.gameObject.SetActive(false);
         currentPanel = null;
     }
+
+    public void UpdatePanel()
+    {
+        if (currentPanel != null)
+        {
+            currentPanel.OnUpdate();
+        }
+    }
 }

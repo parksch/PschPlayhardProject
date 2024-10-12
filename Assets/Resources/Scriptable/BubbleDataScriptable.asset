@@ -1,0 +1,45 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d93f128eca65a5240856b5cc495838d9, type: 3}
+  m_Name: BubbleDataScriptable
+  m_EditorClassIdentifier: 
+  bubbleData:
+  - index: 1
+    contain: 05000000
+    hp: 1
+    textKey: normal
+    sprite: 1
+    prefab: Bubble
+  - index: 2
+    contain: 05000000
+    hp: 1
+    textKey: normal
+    sprite: 2
+    prefab: Bubble
+  - index: 3
+    contain: 05000000
+    hp: 1
+    textKey: normal
+    sprite: 3
+    prefab: Bubble
+  - index: 4
+    contain: 05000000
+    hp: 1
+    textKey: normal
+    sprite: 4
+    prefab: Bubble
+  - index: 5
+    contain: 0100000002000000030000000400000005000000
+    hp: 1
+    textKey: Include
+    sprite: 10
+    prefab: Bubble

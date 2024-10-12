@@ -9,6 +9,10 @@ public class TouchInput : MonoBehaviour
 
     void Update()
     {
+        if (GameManager.Instance.Status != GameStatus.Play)
+        {
+            return;
+        }
 
         if (Input.GetMouseButtonUp(0))
         {

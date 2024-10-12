@@ -8,7 +8,7 @@ public class UIStage : MonoBehaviour
     [SerializeField] Text text;
     [SerializeField] int stageId;
 
-    public void SetStage()
+    public void SetStage(string id)
     {
 
     }

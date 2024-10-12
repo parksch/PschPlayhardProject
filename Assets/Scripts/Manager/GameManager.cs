@@ -6,7 +6,7 @@ using UnityEngine;
 public enum GameStatus
 {
     Selection,
-    Progress,
+    Play,
     Running
 }
 
@@ -26,9 +26,15 @@ public class GameManager : Singleton<GameManager>
             
     }
 
+    private void Start()
+    {
+        Init();
+    }
+
     public void Init()
     {
         status  = GameStatus.Selection;
+        UIManager.Instance.Init();
     }
 
     public void GameReset()

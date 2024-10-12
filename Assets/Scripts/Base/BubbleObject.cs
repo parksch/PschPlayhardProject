@@ -8,9 +8,7 @@ public class BubbleObject : MonoBehaviour
     [SerializeField] Rigidbody2D rigid;
     [SerializeField] CircleCollider2D circleCollider;
     [SerializeField] int id;
-    [SerializeField] float speed;
     [SerializeField] Vector3 normal;
-
 
     bool isShoot = false;
     public float Radius => transform.localScale.x * circleCollider.radius;
@@ -29,7 +27,7 @@ public class BubbleObject : MonoBehaviour
             return;
         }
 
-        transform.position += normal * Time.fixedDeltaTime;
+        transform.position += normal * Time.fixedDeltaTime * 3f;
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
