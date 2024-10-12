@@ -6,13 +6,26 @@ using UnityEngine;
 public class UIManager : Singleton<UIManager>
 {
     [SerializeField] Transform centerTrans;
+    [SerializeField] List<PanelBase> panels = new List<PanelBase>();
     [SerializeField] List<LineRenderer> lineRenderers;
+    [SerializeField] PanelBase initlizePanel;
 
     Vector3 centerNormal = Vector3.zero;
-    Vector3 test;
+    PanelBase currentPanel;
+
     protected override void Awake()
     {
         
+    }
+
+    public void Init()
+    {
+        for (int i = 0; i < panels.Count; i++)
+        {
+            panels[i].FirstLoad();
+        }
+
+        OpenPanel(initlizePanel);
     }
 
     public void SetTouchDown(Vector3 normal)
@@ -73,5 +86,24 @@ public class UIManager : Singleton<UIManager>
                 lineRenderers[i].gameObject.SetActive(false);
             }
         }
+    }
+
+    public void OpenPanel(PanelBase panel)
+    {
+        if (currentPanel != null)
+        {
+            ClosePanel();
+        }
+
+        currentPanel = panel;
+        currentPanel.Open();
+        currentPanel.gameObject.SetActive(true);
+    }
+
+    public void ClosePanel()
+    {
+        currentPanel.Close();
+        currentPanel.gameObject.SetActive(false);
+        currentPanel = null;
     }
 }

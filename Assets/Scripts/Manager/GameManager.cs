@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro.EditorUtilities;
 using UnityEngine;
 
 public enum GameStatus
@@ -27,7 +28,12 @@ public class GameManager : Singleton<GameManager>
 
     public void Init()
     {
+        status  = GameStatus.Selection;
+    }
 
+    public void GameReset()
+    {
+        bubbles.Clear();
     }
 
     public void BubbleShoot(Vector3 normal)
