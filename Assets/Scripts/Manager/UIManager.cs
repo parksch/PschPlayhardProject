@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Burst.CompilerServices;
 using UnityEngine;
 
 public class UIManager : Singleton<UIManager>
@@ -8,6 +9,11 @@ public class UIManager : Singleton<UIManager>
     [SerializeField] List<LineRenderer> lineRenderers;
 
     Vector3 centerNormal = Vector3.zero;
+    Vector3 test;
+    protected override void Awake()
+    {
+        
+    }
 
     public void SetTouchDown(Vector3 normal)
     {
@@ -28,6 +34,8 @@ public class UIManager : Singleton<UIManager>
             lineRenderers[i].gameObject.SetActive(false);
         }
 
+        centerNormal = (lineRenderers[0].GetPosition(1) - lineRenderers[0].GetPosition(0)).normalized;
+        GameManager.Instance.BubbleShoot(centerNormal);
         centerNormal = Vector3.zero;
     }
 
@@ -36,17 +44,19 @@ public class UIManager : Singleton<UIManager>
         lineRenderers[lineIndex].SetPosition(0, start);
 
         int layerMask = (1 << LayerMask.NameToLayer("Wall")) | (1 << LayerMask.NameToLayer("TopWall"));
-        RaycastHit2D hit = Physics2D.Raycast(new Vector2(start.x, start.y), new Vector2(normal.x, normal.y), 100f, layerMask);
+        float radius = GameManager.Instance.CurrentBubbleRadius;
+        RaycastHit2D hit = Physics2D.CircleCast(new Vector2(start.x, start.y), radius, new Vector2(normal.x, normal.y), 100f, layerMask);
 
         if (hit.collider != null)
         {
-            lineRenderers[lineIndex].SetPosition(1, hit.point * .95f);
+            Vector3 point = hit.point + (hit.normal * radius);
+            lineRenderers[lineIndex].SetPosition(1, point);
             lineRenderers[lineIndex].gameObject.SetActive(true);
 
             if (hit.collider.gameObject.layer == LayerMask.NameToLayer("Wall") && lineIndex + 1 < lineRenderers.Count)
             {
                 normal.x *= -1;
-                DrawLine(hit.point * .95f, normal, lineIndex + 1);
+                DrawLine(point, normal, lineIndex + 1);
             }
             else
             {

@@ -14,7 +14,6 @@ public class TouchInput : MonoBehaviour
         {
             UIManager.Instance.SetTouchUp();
         }
-
         else if (Input.GetMouseButton(0))
         {
             Vector3 mousePos = screenCamera.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, -screenCamera.transform.position.z));
