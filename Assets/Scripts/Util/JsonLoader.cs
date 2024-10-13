@@ -33,6 +33,7 @@ public class JsonLoader : EditorWindow
         EditorGUILayout.LabelField("Json 파일을 Scriptable 파일로 변경");
         EditorGUILayout.LabelField("처음 생성시 ScriptableObject가 생성이 안되는 문제 발생");
         EditorGUILayout.LabelField("확인 팝업이 안 뜬다면 한 번 더 클릭 하면 문제 해결");
+        EditorGUILayout.LabelField("사용시 ScriptableManager Inspector 값 전부 missing 다시 넣어야함");
         GUI.enabled = isButtonEnabled;
 
         if (GUILayout.Button("Conversion"))
@@ -41,10 +42,11 @@ public class JsonLoader : EditorWindow
             OnClickJsonConversion();
         }
 
-        EditorGUILayout.LabelField("!에러 주의 개발자 Test 용: Scriptable 파일을 Json으로 만들어주는 프로그램 ");
+        EditorGUILayout.LabelField("*개발자 Test 용: Scriptable 파일을 Json으로 만들어주는 프로그램* (에러 발생 가능성)");
 
         if (GUILayout.Button("Conversion"))
         {
+            isButtonEnabled = false;
             OnClickScriptableConversion();
         }
     }
@@ -369,13 +371,26 @@ public class JsonLoader : EditorWindow
             Directory.CreateDirectory(jsonDatapath);
         }
 
-        List<JsonClass.BubbleData> datas = ScriptableManager.Instance.bubbleDataScriptable.bubbleData;
-        string json = JsonConvert.SerializeObject(datas);
-        string path = string.Format("{0}/{1}", jsonDatapath, "Bubbles.json");
-        File.WriteAllText(path, json.ToString(), Encoding.UTF8);
+        try
+        {
+            List<JsonClass.BubbleData> bubbleDatas = ScriptableManager.Instance.bubbleDataScriptable.bubbleData;
+            string json = JsonConvert.SerializeObject(bubbleDatas);
+            string path = string.Format("{0}/{1}", jsonDatapath, "BubbleData.json");
+            File.WriteAllText(path, json.ToString(), Encoding.UTF8);
 
-        AssetDatabase.Refresh();
-        EditorUtility.DisplayDialog("결과", "Scriptable 에서 Json 변환", "확인");
+            List<JsonClass.MapData> mapDatas = ScriptableManager.Instance.mapDataScriptable.mapData;
+            json = JsonConvert.SerializeObject(mapDatas);
+            path = string.Format("{0}/{1}", jsonDatapath, "MapData.json");
+            File.WriteAllText(path, json.ToString(), Encoding.UTF8);
+            AssetDatabase.Refresh();
+            EditorUtility.DisplayDialog("결과", "Scriptable 에서 Json 변환", "확인");
+            isButtonEnabled = true;
+        }
+        catch (Exception e)
+        {
+            EditorUtility.DisplayDialog("결과", "Scriptable 에서 Json 변환 실패\n" + e.Message, "확인");
+            isButtonEnabled = true;
+        }
     }
 }
 #endif
