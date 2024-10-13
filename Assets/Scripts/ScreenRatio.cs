@@ -9,7 +9,7 @@ public class ScreenRatio : MonoBehaviour
 
     private void Start()
     {
-        
+        SetRawSizeRatio();
     }
 
     public void SetRawSizeRatio()
@@ -17,13 +17,14 @@ public class ScreenRatio : MonoBehaviour
 
         for (int i = 0; i < rawRenders.Count; i++)
         {
+
         }
     }
 
     [System.Serializable]
     public class RawRender
     {
-        [SerializeField] RawImage texture;
+        [SerializeField] RectTransform texture;
         [SerializeField] RectTransform pivot;
     }
 }
