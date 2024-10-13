@@ -15,6 +15,6 @@ public class DataManager : Singleton<DataManager>
 
     public void Init()
     {
-        currentStage = 0;
+        currentStage = 1;
     }
 }

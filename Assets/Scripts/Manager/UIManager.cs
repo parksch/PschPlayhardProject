@@ -2,13 +2,16 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Burst.CompilerServices;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class UIManager : Singleton<UIManager>
 {
+    [SerializeField] GameObject rawImage;
     [SerializeField] Transform centerTrans;
     [SerializeField] List<PanelBase> panels = new List<PanelBase>();
     [SerializeField] List<LineRenderer> lineRenderers;
     [SerializeField] PanelBase initlizePanel;
+    [SerializeField] Text bubbleCount;
 
     Vector3 centerNormal = Vector3.zero;
     PanelBase currentPanel;
@@ -27,6 +30,8 @@ public class UIManager : Singleton<UIManager>
 
         OpenPanel(initlizePanel);
     }
+
+    public void SetBubbleCount(int num) => bubbleCount.text = num.ToString();
 
     public void SetTouchDown(Vector3 normal)
     {
@@ -113,5 +118,15 @@ public class UIManager : Singleton<UIManager>
         {
             currentPanel.OnUpdate();
         }
+    }
+
+    public void SetStage()
+    {
+        rawImage.SetActive(true);
+    }
+
+    public void EndStage()
+    {
+        rawImage.SetActive(false);
     }
 }
