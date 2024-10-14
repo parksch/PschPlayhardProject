@@ -13,10 +13,12 @@ public class ToolBubbleButton : MonoBehaviour
     public void SetTarget(BubbleData data)
     {
         target = data;
+        sprite.sprite = ResourcesManager.Instance.GetSprite(target.atlas,target.sprite);
+        text.text = target.index.ToString();
     }
 
     public void OnClick()
     {
-
+        ToolManager.Instance.SetCurrentBubble(target);
     }
 }

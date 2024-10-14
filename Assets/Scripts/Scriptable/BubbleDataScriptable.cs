@@ -15,6 +15,7 @@ namespace JsonClass
         public List<int> contain;
         public int hp;
         public string textKey;
+        public string atlas;
         public string sprite;
         public string prefab;
     }
