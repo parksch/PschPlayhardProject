@@ -47,7 +47,7 @@ public class ToolGrid : MonoBehaviour
 
     public bool VisitBubble()
     {
-        if (bubble.index != 0 && y == 1)
+        if (bubble.index != 0 && y == ToolManager.Instance.y)
         {
             return true;
         }
@@ -115,11 +115,6 @@ public class ToolGrid : MonoBehaviour
 
                 bool isOddRow = (y % 2 != 0);
 
-                if (ToolManager.Instance.y % 2 == 0)
-                {
-                    isOddRow = !isOddRow;
-                }
-
                 if ((i != 0 && ((isOddRow && j > -1) || (!isOddRow && j < 1))) || i == 0)
                 {
                     ToolGrid tool = ToolManager.Instance.FindToolGridAt(x + j, y + i);
@@ -132,7 +127,7 @@ public class ToolGrid : MonoBehaviour
         }
     }
 
-    void SetBubble(JsonClass.BubbleData target)
+    public void SetBubble(JsonClass.BubbleData target)
     {
         bubble.index = target.index;
         bubble.contain = target.contain;
@@ -141,7 +136,11 @@ public class ToolGrid : MonoBehaviour
         bubble.atlas = target.atlas;
         bubble.sprite = target.sprite;
         bubble.prefab = target.prefab;
+        front.sprite = ResourcesManager.Instance.GetSprite(bubble.atlas, bubble.sprite);
+        front.gameObject.SetActive(true);
+        OnClickButton();
     }
+
     private void Update()
     {
         if (isEnter && isOn && ToolManager.Instance.currentBubble.index != 0)
@@ -149,9 +148,6 @@ public class ToolGrid : MonoBehaviour
             if (Input.GetMouseButtonDown(0))
             {
                 SetBubble(ToolManager.Instance.currentBubble);
-                front.sprite = ResourcesManager.Instance.GetSprite(bubble.atlas, bubble.sprite);
-                front.gameObject.SetActive(true);
-                OnClickButton();
             }
             else if (Input.GetMouseButtonDown(1) && bubble.index != 0)
             {

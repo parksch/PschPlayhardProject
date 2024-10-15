@@ -12,7 +12,10 @@ public class UIManager : Singleton<UIManager>
     [SerializeField] List<LineRenderer> lineRenderers;
     [SerializeField] PanelBase initlizePanel;
     [SerializeField] Text bubbleCount;
+    [SerializeField] RectTransform l;
+    [SerializeField] RectTransform r;
 
+    float horizontal;
     Vector3 centerNormal = Vector3.zero;
     PanelBase currentPanel;
 
@@ -29,6 +32,8 @@ public class UIManager : Singleton<UIManager>
         }
 
         OpenPanel(initlizePanel);
+        horizontal = Vector3.Distance(l.position,r.position);
+        Debug.Log(horizontal);
     }
 
     public void SetBubbleCount(int num) => bubbleCount.text = num.ToString();

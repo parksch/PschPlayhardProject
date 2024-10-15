@@ -13,6 +13,7 @@ public class StartManager : Singleton<StartManager>
     public void OnClick()
     {
         DataManager.Instance.Init();
+        ResourcesManager.Instance.Init();
         SceneManager.LoadScene(1);
     }
 }

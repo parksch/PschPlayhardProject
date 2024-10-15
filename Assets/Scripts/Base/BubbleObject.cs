@@ -11,8 +11,15 @@ public class BubbleObject : MonoBehaviour
     [SerializeField] Vector3 normal;
 
     bool isShoot = false;
-    public float Radius => transform.localScale.x * circleCollider.radius;
 
+    public float Radius => transform.localScale.x * circleCollider.radius;
+    public int ID => id;
+
+    public void Set(JsonClass.BubbleData bubbleData)
+    {
+        sprite.sprite = bubbleData.Sprite();
+        id = bubbleData.index;
+    }
 
     public void Shoot(Vector3 _normal)
     {

@@ -1,22 +1,15 @@
-using System.Collections;
+using JsonClass;
+using Newtonsoft.Json;
 using System.Collections.Generic;
-using System.Linq;
-using Unity.VisualScripting;
-using Unity.VisualScripting.Dependencies.Sqlite;
+using System.Text;
+using UnityEditor;
 using UnityEngine;
-using UnityEngine.Rendering;
 using UnityEngine.UI;
+using System.IO;
 
 public class ToolManager : Singleton<ToolManager>
 {
-    [SerializeField] List<ToolBubbleButton> bubbleButtons = new List<ToolBubbleButton>();
-    [SerializeField] ToolBubbleButton buttonPrefab;
-    [SerializeField] RectTransform content;
-    [SerializeField] GameObject gridParent;
-    [SerializeField] GameObject gridPrefab;
-    [SerializeField] Image bubble;
-    [SerializeField] float cameraSizeMin;
-    [SerializeField] float cameraSizeMax;
+    static string jsonDatapath = "Assets/JsonFiles";
 
     public List<GirdRow> gridRow;
     public List<ToolGrid> visitGrid = new List<ToolGrid>();
@@ -25,6 +18,25 @@ public class ToolManager : Singleton<ToolManager>
     public JsonClass.BubbleData currentBubble;
     public int x;
     public int y;
+
+    [SerializeField] List<ToolBubbleButton> bubbleButtons = new List<ToolBubbleButton>();
+    [SerializeField] ToolBubbleButton buttonPrefab;
+    [SerializeField] List<ToolSave> stageButtons = new List<ToolSave>();
+    [SerializeField] ToolSave savePrefab;
+    [SerializeField] RectTransform bubbleContent;
+    [SerializeField] RectTransform saveContent;
+    [SerializeField] Text mapName;
+    [SerializeField] GameObject gridParent;
+    [SerializeField] GameObject gridPrefab;
+    [SerializeField] Button saveMapButton;
+    [SerializeField] Button removeMapButton;
+    [SerializeField] Image bubble;
+    [SerializeField] float cameraSizeMin;
+    [SerializeField] float cameraSizeMax;
+    [SerializeField] int bubbleCount;
+    [SerializeField] int gameMode;
+
+    JsonClass.MapData currentMap;
 
     public class VisitGrid
     {
@@ -42,6 +54,7 @@ public class ToolManager : Singleton<ToolManager>
     {
         ResourcesManager.Instance.Init();
         CreateButton();
+        CreateSave();
         CreateGrid();
     }
 
@@ -57,11 +70,32 @@ public class ToolManager : Singleton<ToolManager>
             }
             else
             {
-                ToolBubbleButton go = Instantiate(buttonPrefab.gameObject, content).GetComponent<ToolBubbleButton>();
+                ToolBubbleButton go = Instantiate(buttonPrefab.gameObject, bubbleContent).GetComponent<ToolBubbleButton>();
                 go.SetTarget(bubbleDatas[i]);
                 bubbleButtons.Add(go);
             }
         }
+    }
+
+    void CreateSave()
+    {
+        List<JsonClass.MapData> mapDatas = ScriptableManager.Instance.mapDataScriptable.mapData;
+
+        for (int i = 0; i < mapDatas.Count; i++)
+        {
+            if (i == 0)
+            {
+                savePrefab.Set(mapDatas[i]);
+                savePrefab.gameObject.SetActive(true);
+            }
+            else
+            {
+                ToolSave go = Instantiate(savePrefab.gameObject, saveContent).GetComponent<ToolSave>();
+                go.Set(mapDatas[i]);
+                stageButtons.Add(go);
+            }
+        }
+        
     }
 
     void CreateGrid()
@@ -76,10 +110,10 @@ public class ToolManager : Singleton<ToolManager>
                 ToolGrid toolGrid = go.GetComponent<ToolGrid>();
                 go.transform.position = new Vector3(-((x / 2) + (i % 2 == 0 ? 0:0.5f)) + j, 0, 0);
                 go.transform.parent = gridParent.transform;
-                toolGrid.x = (x - (i % 2 == 0 ? 0 : -1)) - j;
-                toolGrid.y = y - i;
+                toolGrid.x = j + 1;
+                toolGrid.y = i + 1;
                 gridRow[i].toolGrids.Add(toolGrid);
-                if (toolGrid.y == 1)
+                if (toolGrid.y == y)
                 {
                     toolGrid.SetGreen();
                 }
@@ -121,11 +155,6 @@ public class ToolManager : Singleton<ToolManager>
                 Camera.main.transform.position += (Vector3.up * 0.4f);
             }
         }
-    }
-
-    public void OnClickSave()
-    {
-
     }
 
     public void SetCurrentBubble(JsonClass.BubbleData current)
@@ -197,7 +226,7 @@ public class ToolManager : Singleton<ToolManager>
         {
             foreach (var tool in row.toolGrids)
             {
-                if (tool.bubble.index == 0 && tool.y != 1)
+                if (tool.bubble.index == 0 && tool.y != y)
                 {
                     tool.SetWhite();
                 }
@@ -208,7 +237,7 @@ public class ToolManager : Singleton<ToolManager>
         {
             foreach (var tool in row.toolGrids)
             {
-                if (tool.y == 1 && tool.bubble.index == 0)
+                if (tool.y == y && tool.bubble.index == 0)
                 {
                     tool.SetGreen();
                 }
@@ -227,11 +256,6 @@ public class ToolManager : Singleton<ToolManager>
 
         bool isOddRow = (_y % 2 != 0);
 
-        if (y % 2 == 0)
-        {
-            isOddRow = !isOddRow;
-        }
-
         if (i == 1 || i == -1)
         {
             return (isOddRow && j > -1) || (!isOddRow && j < 1);
@@ -240,4 +264,148 @@ public class ToolManager : Singleton<ToolManager>
         return true;
     }
 
+    void DestroyGrid()
+    {
+        for (int i = 0; i < gridRow.Count; i++)
+        {
+            for (int j = 0; j < gridRow[i].toolGrids.Count; j++)
+            {
+                Destroy(gridRow[i].toolGrids[j].gameObject);
+            }
+        }
+
+        gridRow.Clear();
+    }
+
+    void RemoveSaveButton()
+    {
+        for(int i = 0;i < stageButtons.Count;i++)
+        {
+            if (i == 0)
+            {
+                stageButtons[i].gameObject.SetActive(false);
+            }
+            else
+            {
+                Destroy(stageButtons[i].gameObject);
+            }
+        }
+
+        stageButtons.Clear();
+        stageButtons.Add(savePrefab);
+    }
+
+    public void LoadMap(MapData mapData)
+    {
+        DestroyGrid();
+
+        x = mapData.x;
+        y = mapData.y;
+        currentMap = mapData;
+        mapName.text = currentMap.stage.ToString();
+        saveMapButton.interactable = true;
+        removeMapButton.interactable = true;
+
+        CreateGrid();
+        MapDataSetBubble();
+    }
+
+    void MapDataSetBubble()
+    {
+        for (int i = 0; i < currentMap.layouts.Count; i++)
+        {
+            ToolGrid toolGrid = FindToolGridAt(currentMap.layouts[i].x, currentMap.layouts[i].y);
+
+            if (toolGrid == null)
+            {
+                continue;
+            }
+
+            if (currentMap.layouts[i].bubble == 0)
+            {
+                toolGrid.SetWhite();
+            }
+            else
+            {
+                toolGrid.SetBubble(ScriptableManager.Instance.bubbleDataScriptable.bubbleData.Find(x => x.index == currentMap.layouts[i].bubble));
+            }
+        }
+
+        CheckBubble();
+    }
+
+    void AddMapDataLayout(JsonClass.MapData mapData)
+    {
+        if (mapData.layouts == null)
+        {
+           mapData.layouts = new List<Layout>();
+        }
+
+        mapData.layouts.Clear();
+
+        for (int i = 0; i < gridRow.Count; i++)
+        {
+            for (int j = 0; j < gridRow[i].toolGrids.Count; j++)
+            {
+                if (gridRow[i].toolGrids[j].bubble.index != 0)
+                {
+                    ToolGrid toolGrid = gridRow[i].toolGrids[j];
+                    JsonClass.Layout layout = new Layout();
+                    layout.x = toolGrid.x;
+                    layout.y = toolGrid.y;
+                    layout.bubble = toolGrid.bubble.index;
+                    mapData.layouts.Add(layout);
+                }
+            }
+        }
+    }
+
+    public void OnClickRemove()
+    {
+        ScriptableManager.Instance.mapDataScriptable.mapData.Remove(currentMap);
+        mapName.text = "";
+        saveMapButton.interactable = false;
+        removeMapButton.interactable = false;
+        currentMap = null;
+        x = 11;
+        y = 11;
+        DestroyGrid();
+        RemoveSaveButton();
+        CreateGrid();
+        CreateSave();
+    }
+
+    public void OnClickSave()
+    {
+        AddMapDataLayout(currentMap);
+        SaveJson();
+    }
+
+    public void OnClickNewSave()
+    {
+        JsonClass.MapData mapData = new JsonClass.MapData();
+        mapData.x = x;
+        mapData.y = y;
+        mapData.stage = ScriptableManager.Instance.mapDataScriptable.mapData.Count + 1;
+        mapData.name = "stagename";
+        mapData.bubbleCount = bubbleCount;
+        mapData.gameMode = gameMode;
+        currentMap = mapData;
+        mapName.text = currentMap.stage.ToString();
+        AddMapDataLayout(mapData);
+        ScriptableManager.Instance.mapDataScriptable.mapData.Add(mapData);
+        RemoveSaveButton();
+        CreateSave();
+        SaveJson();
+    }
+
+    void SaveJson()
+    {
+        List<JsonClass.MapData> mapDatas = ScriptableManager.Instance.mapDataScriptable.mapData;
+        string json = JsonConvert.SerializeObject(mapDatas);
+        string path = string.Format("{0}/{1}", jsonDatapath, "MapData.json");
+        File.WriteAllText(path, json.ToString(), Encoding.UTF8);
+        AssetDatabase.Refresh();
+        EditorUtility.DisplayDialog("결과", "Scriptable 에서 Json 변환", "확인");
+    }
 }

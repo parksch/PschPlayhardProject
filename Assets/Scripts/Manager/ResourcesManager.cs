@@ -6,7 +6,8 @@ using UnityEngine.U2D;
 public class ResourcesManager : Singleton<ResourcesManager>
 {
     [SerializeField] int defaultCreateNum = 30;
-    Dictionary<string,SpriteAtlas> atlas = new Dictionary<string,SpriteAtlas>();
+    Dictionary<string,SpriteAtlas> atlasDict = new Dictionary<string,SpriteAtlas>();
+    Dictionary<string, ResourcesObject> gameObjectDict = new Dictionary<string, ResourcesObject>();
 
     public void Init()
     {
@@ -14,13 +15,13 @@ public class ResourcesManager : Singleton<ResourcesManager>
 
         foreach (var item in spriteAtlas)
         {
-            atlas[item.name] = item;
+            atlasDict[item.name] = item;
         }
     }
 
     public Sprite GetSprite(string atlasName,string id)
     {
-        return atlas[atlasName].GetSprite(id);
+        return atlasDict[atlasName].GetSprite(id);
     }
 
     [System.Serializable]
@@ -30,13 +31,32 @@ public class ResourcesManager : Singleton<ResourcesManager>
         public Queue<GameObject> objects = new Queue<GameObject>();       
     }
 
-    public void Get(string name)
+    public GameObject Get(string name)
     {
+        if (!gameObjectDict.ContainsKey(name))
+        {
+            ResourcesObject resourcesObject = new ResourcesObject();
+            gameObjectDict[name] = resourcesObject;
+            resourcesObject.prefab = Resources.Load<GameObject>("Prefab/" + name);
+        }
 
+        if (gameObjectDict[name].objects.Count == 0)
+        {
+            CreateResource(gameObjectDict[name]);
+        }
+
+        GameObject gameObject = gameObjectDict[name].objects.Dequeue();
+
+        return gameObject;
     }
 
-    void CreateResource()
+    void CreateResource(ResourcesObject resourcesObject)
     {
-
+        for (int i = 0; i < defaultCreateNum; i++)
+        {
+            GameObject gameObject = Instantiate(resourcesObject.prefab,transform);
+            gameObject.SetActive(false);
+            resourcesObject.objects.Enqueue(gameObject);
+        }
     }
 }

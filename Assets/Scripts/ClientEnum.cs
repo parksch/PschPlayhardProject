@@ -6,4 +6,10 @@ namespace ClientEnum
 		Boss,
         Rescue
     }
+
+	public enum Bubble
+	{ 
+		Normal = 1,
+		Special
+	}
 }
