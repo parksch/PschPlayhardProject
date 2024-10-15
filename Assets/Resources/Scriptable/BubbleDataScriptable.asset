@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   bubbleData:
   - index: 1
+    type: 1
     contain: 05000000
     hp: 1
     textKey: normal
@@ -21,6 +22,7 @@ MonoBehaviour:
     sprite: 1
     prefab: Bubble
   - index: 2
+    type: 1
     contain: 05000000
     hp: 1
     textKey: normal
@@ -28,6 +30,7 @@ MonoBehaviour:
     sprite: 2
     prefab: Bubble
   - index: 3
+    type: 1
     contain: 05000000
     hp: 1
     textKey: normal
@@ -35,6 +38,7 @@ MonoBehaviour:
     sprite: 3
     prefab: Bubble
   - index: 4
+    type: 1
     contain: 05000000
     hp: 1
     textKey: normal
@@ -42,6 +46,7 @@ MonoBehaviour:
     sprite: 4
     prefab: Bubble
   - index: 5
+    type: 2
     contain: 01000000020000000300000004000000
     hp: 1
     textKey: Random

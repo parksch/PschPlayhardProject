@@ -14,17 +14,22 @@ public class ScreenRatio : MonoBehaviour
 
     public void SetRawSizeRatio()
     {
-
         for (int i = 0; i < rawRenders.Count; i++)
         {
+            RectTransform pivot = rawRenders[i].pivot;
+            float maxDimension = Mathf.Max(pivot.rect.width, pivot.rect.height);
 
+            float textureWidth = rawRenders[i].texture.rect.width;
+            float scaleFactor = maxDimension / textureWidth;
+
+            rawRenders[i].texture.localScale = Vector3.one * scaleFactor;
         }
     }
 
     [System.Serializable]
     public class RawRender
     {
-        [SerializeField] RectTransform texture;
-        [SerializeField] RectTransform pivot;
+        public RectTransform texture;
+        public RectTransform pivot;
     }
 }

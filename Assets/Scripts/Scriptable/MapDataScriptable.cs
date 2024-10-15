@@ -12,11 +12,12 @@ namespace JsonClass
     [System.Serializable]
     public partial class MapData
     {
+        public int x;
+        public int y;
         public int stage;
         public string name;
         public int gameMode;
         public int bubbleCount;
-        public List<int> bubbles;
         public List<Layout> layouts;
     }
 

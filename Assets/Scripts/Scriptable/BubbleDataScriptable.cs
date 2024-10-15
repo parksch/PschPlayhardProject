@@ -12,6 +12,7 @@ namespace JsonClass
     public partial class BubbleData
     {
         public int index;
+        public int type;
         public List<int> contain;
         public int hp;
         public string textKey;
