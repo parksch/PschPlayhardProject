@@ -9,6 +9,7 @@ using Unity.Android.Types;
 using Unity.VisualScripting;
 using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.XR;
 
 
@@ -26,12 +27,26 @@ public class GameManager : Singleton<GameManager>
     [SerializeField] List<BubbleObject> closeBubbles = new List<BubbleObject>();
     [SerializeField] List<int> shootBubbleID = new List<int>();
     [SerializeField] BubbleObject prefab;
+    [SerializeField] Image fillImage;
     [SerializeField] float bubbleSize = 1;
     [SerializeField] int bubbleCount;
     [SerializeField] int horizontal = 10;
     [SerializeField] int targetX, targetY;
     [SerializeField] int stage;
+    [SerializeField] int skillGauge;
+    [SerializeField] int currentSkillGauge;
 
+    public void AddSkillGauge(int num = 1)
+    {
+        currentSkillGauge += num;
+
+        if (currentSkillGauge > skillGauge)
+        {
+            currentSkillGauge = skillGauge;
+        }
+
+        fillImage.fillAmount = (float)currentSkillGauge / skillGauge;
+    }
     public Transform GameObjectParent => gameObjectParent;
     public GameStatus Status
     {
@@ -67,6 +82,8 @@ public class GameManager : Singleton<GameManager>
 
     public void SetStage(MapData mapData)
     {
+        currentSkillGauge = 0;
+        fillImage.fillAmount = 0;
         stage = mapData.stage;
         targetX = mapData.x;
         targetY = mapData.y;
@@ -309,8 +326,15 @@ public class GameManager : Singleton<GameManager>
             i--;
         }
 
+        List<BubbleObject> collisionList = new List<BubbleObject>();
+        for (int i = 0; i < closeBubbles.Count; i++)
+        {
+            AroundCollisionBubble(closeBubbles[i], collisionList);
+        }
+
         if (closeBubbles.Count >= 3)
         {
+            AddSkillGauge(closeBubbles.Count);
             ExplosionBubbles(closeBubbles);
         }
 
@@ -324,6 +348,40 @@ public class GameManager : Singleton<GameManager>
             bubbles.Remove(expBubbles[i].Grid);
             expBubbles[i].OnExplosion();
             ResourcesManager.Instance.Push(expBubbles[i].name,expBubbles[i].gameObject);
+        }
+    }
+
+    void AroundCollisionBubble(BubbleObject bubbleObject,List<BubbleObject> collisionList)
+    {
+        for (int y = -1; y < 2; y++)
+        {
+            for (int x = -1; x < 2; x++)
+            {
+                if (x == 0 && y == 0)
+                {
+                    continue;
+                }
+
+                Vector2Int current = new Vector2Int(bubbleObject.Grid.x + x, bubbleObject.Grid.y + y);
+
+                bool isOdd = bubbleObject.Grid.y % 2 == 1;
+
+                if (y != 0 && ((isOdd && x == -1) || (!isOdd && x == 1)))
+                {
+                    continue;
+                }
+
+                if (bubbles.ContainsKey(current))
+                {
+                    BubbleObject near = bubbles[current];
+
+                    if (!closeBubbles.Contains(near) && !collisionList.Contains(near))
+                    {
+                        near.OnCollision();
+                        collisionList.Add(near);
+                    }
+                }
+            }
         }
     }
 
@@ -352,7 +410,6 @@ public class GameManager : Singleton<GameManager>
                 if (bubbles.ContainsKey(current))
                 {
                     BubbleObject near = bubbles[current];
-                    near.OnCollision();
 
                     if (near.ID == bubbleObject.ID && !closeBubbles.Contains(near) && !visitBubbles.Contains(near))
                     {
@@ -383,9 +440,18 @@ public class GameManager : Singleton<GameManager>
                 DropBubbles(closeBubbles);
             }
 
-            closeBubbles.Clear();
             visitBubbles.RemoveAt(i);
             i--;
+
+            for (int j = 0; j < closeBubbles.Count; j++)
+            {
+                if (visitBubbles.Contains(closeBubbles[j]))
+                {
+                    visitBubbles.Remove(closeBubbles[j]);
+                }
+            }
+
+            closeBubbles.Clear();
         }
 
         CheckStage();
@@ -395,8 +461,11 @@ public class GameManager : Singleton<GameManager>
     {
         for (int i = 0; i < bubbleObjects.Count; i++)
         {
-            bubbles.Remove(bubbleObjects[i].Grid);
-            bubbleObjects[i].OnDrop();
+            if (bubbles.ContainsKey(bubbleObjects[i].Grid))
+            {
+                bubbles.Remove(bubbleObjects[i].Grid);
+                bubbleObjects[i].OnDrop();
+            }
         }
     }
 
