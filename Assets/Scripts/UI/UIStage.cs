@@ -21,6 +21,5 @@ public class UIStage : MonoBehaviour
     public void OnClick()
     {
         GameManager.Instance.SetStage(target);
-        UIManager.Instance.ClosePanel();
     }
 }

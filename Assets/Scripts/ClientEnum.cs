@@ -4,7 +4,9 @@ namespace ClientEnum
     {
         Selection,
         Play,
-        Running
+        Running,
+        Clear,
+        Fail
     }
 
     public enum GameMode

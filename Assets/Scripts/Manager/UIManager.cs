@@ -63,6 +63,14 @@ public class UIManager : Singleton<UIManager>
         centerNormal = Vector3.zero;
     }
 
+    public void ReleaseTouch()
+    {
+        for (int i = 0; i < lineRenderers.Count; i++)
+        {
+            lineRenderers[i].gameObject.SetActive(false);
+        }
+    }
+
     void DrawLine(Vector3 start,Vector3 normal,int lineIndex = 0)
     {
         lineRenderers[lineIndex].SetPosition(0, start);
@@ -103,6 +111,8 @@ public class UIManager : Singleton<UIManager>
 
     public void OpenPanel(PanelBase panel)
     {
+        rawImage.SetActive(panel.IsTranslucent);
+
         if (currentPanel != null)
         {
             ClosePanel();
@@ -118,6 +128,7 @@ public class UIManager : Singleton<UIManager>
         currentPanel.Close();
         currentPanel.gameObject.SetActive(false);
         currentPanel = null;
+        rawImage.SetActive(true);
     }
 
     public void UpdatePanel()
@@ -128,13 +139,8 @@ public class UIManager : Singleton<UIManager>
         }
     }
 
-    public void SetStage()
+    public T GetPanel<T>() where T : PanelBase
     {
-        rawImage.SetActive(true);
-    }
-
-    public void EndStage()
-    {
-        rawImage.SetActive(false);
+        return panels.Find(x => x.GetType() == typeof(T)) as T;    
     }
 }

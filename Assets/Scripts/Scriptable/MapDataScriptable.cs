@@ -14,6 +14,7 @@ namespace JsonClass
         public int x;
         public int y;
         public int stage;
+        public int next;
         public string name;
         public int gameMode;
         public int bubbleCount;

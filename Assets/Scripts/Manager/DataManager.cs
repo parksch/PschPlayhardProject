@@ -6,7 +6,23 @@ public class DataManager : Singleton<DataManager>
 {
     [SerializeField] int currentStage;
 
-    public int CurrentStage => currentStage;
+    public int CurrentStage
+    {
+        get
+        {
+            return currentStage;
+        }
+        set
+        {
+            JsonClass.MapData map = ScriptableManager.Instance.mapDataScriptable.mapData.Find(x => x.stage == value);
+
+            if (map != null && currentStage == map.stage)
+            {
+                currentStage = map.next;
+            }
+        }
+    
+    }
 
     private void Start()
     {

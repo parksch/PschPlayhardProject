@@ -7,6 +7,7 @@ using System.Resources;
 using TMPro.EditorUtilities;
 using Unity.Android.Types;
 using Unity.VisualScripting;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.XR;
 
@@ -29,8 +30,14 @@ public class GameManager : Singleton<GameManager>
     [SerializeField] int bubbleCount;
     [SerializeField] int horizontal = 10;
     [SerializeField] int targetX, targetY;
+    [SerializeField] int stage;
 
-    public GameStatus Status => status;
+    public Transform GameObjectParent => gameObjectParent;
+    public GameStatus Status
+    {
+        get { return status; }
+        set { status = value; }
+    }
     public float CurrentBubbleRadius => shootBubbles[0].Radius;
 
     protected override void Awake()
@@ -49,11 +56,6 @@ public class GameManager : Singleton<GameManager>
         UIManager.Instance.Init();
     }
 
-    public void GameReset()
-    {
-        bubbles.Clear();
-    }
-
     public void BubbleShoot(Vector3 normal)
     {
         status = GameStatus.Running;
@@ -65,6 +67,7 @@ public class GameManager : Singleton<GameManager>
 
     public void SetStage(MapData mapData)
     {
+        stage = mapData.stage;
         targetX = mapData.x;
         targetY = mapData.y;
         bubbleCount = mapData.bubbleCount;
@@ -74,7 +77,6 @@ public class GameManager : Singleton<GameManager>
         CreateShootBubble();
         bubbleGameObject.SetActive(true);
         UIManager.Instance.SetBubbleCount(bubbleCount);
-        UIManager.Instance.SetStage();
         status = GameStatus.Play;
     }
 
@@ -151,7 +153,7 @@ public class GameManager : Singleton<GameManager>
                 {
                     shootBubbles[i].transform.localScale *= 0.5f;
                 }
-                shootBubbles[i].transform.parent = gameObjectParent;
+                shootBubbles[i].transform.parent = GameObjectParent;
                 shootBubbles[i].gameObject.SetActive(true);
             }
         }
@@ -188,7 +190,7 @@ public class GameManager : Singleton<GameManager>
 
             bubbleObject.Set(bubbleData,new Vector2Int(layout.x,layout.y));
             bubbleObject.transform.parent = bubbleParent;
-            bubbleObject.transform.localScale *= bubbleSize;
+            bubbleObject.transform.localScale = Vector3.one * bubbleSize;
             bubbleObject.transform.position = BubblePos(layout.x,layout.y);
             bubbleObject.gameObject.SetActive(true);
 
@@ -263,9 +265,9 @@ public class GameManager : Singleton<GameManager>
                         continue;
                     }
 
-                    bool isOdd = bubbleObject.Grid.y % 2 == 1;
+                    bool isOdd = collisionBubble.Grid.y % 2 == 1;
 
-                    if (isOdd && x == -1 || !isOdd && x == 1)
+                    if (y != 0 && ((isOdd && x == -1) || (!isOdd && x == 1)))
                     {
                         continue;
                     }
@@ -328,7 +330,7 @@ public class GameManager : Singleton<GameManager>
     void VisitBubble(BubbleObject bubbleObject)
     {
         closeBubbles.Add(bubbleObject);
-           
+
         for (int y = -1; y < 2; y++)
         {
             for (int x = -1; x < 2; x++)
@@ -340,14 +342,9 @@ public class GameManager : Singleton<GameManager>
 
                 Vector2Int current = new Vector2Int(bubbleObject.Grid.x + x, bubbleObject.Grid.y + y);
 
-                if (current.x < 1 || current.x > targetX)
-                {
-                    continue;
-                }
-
                 bool isOdd = bubbleObject.Grid.y % 2 == 1;
 
-                if (isOdd && x == -1 || !isOdd && x == 1)
+                if (y != 0 && ((isOdd && x == -1) || (!isOdd && x == 1)))
                 {
                     continue;
                 }
@@ -426,14 +423,9 @@ public class GameManager : Singleton<GameManager>
 
                 Vector2Int current = new Vector2Int(bubbleObject.Grid.x + x, bubbleObject.Grid.y + y);
 
-                if (current.x < 1 || current.x > targetX)
-                {
-                    continue;
-                }
-
                 bool isOdd = bubbleObject.Grid.y % 2 == 1;
 
-                if (isOdd && x == -1 || !isOdd && x == 1)
+                if (y != 0 && ((isOdd && x == -1) || (!isOdd && x == 1)))
                 {
                     continue;
                 }
@@ -464,19 +456,49 @@ public class GameManager : Singleton<GameManager>
 
     public void CheckStage()
     {
+        switch (mode)
+        {
+            case GameMode.Normal:
+                bubbleParent.transform.position = Vector3.up * GetY() * bubbleSize;
+                break;
+            case GameMode.Boss:
+                bubbleParent.transform.position = Vector3.up * GetY() * bubbleSize;
+                break;
+            case GameMode.Rescue:
+                break;
+            default:
+                break;
+        }
 
         EndPhase();
     }
 
+    int GetY()
+    {
+        int y = 0;
+        foreach (var item in bubbles)
+        {
+            if (item.Value.Grid.y > y)
+            {
+                y = item.Value.Grid.y;
+            }
+        }
+
+        return y;
+    }
+
     public void EndPhase()
     {
-        if (bubbleCount <= 0 )
+        if (CheckGameMode()|| bubbles.Count == 0)
         {
-
+            DataManager.Instance.CurrentStage = stage;
+            status = GameStatus.Clear;
+            UIManager.Instance.OpenPanel(UIManager.Instance.GetPanel<ResultPanel>());
         }
-        else if (bubbles.Count == 0)
+        else if (bubbleCount <= 0)
         {
-
+            status = GameStatus.Fail;
+            UIManager.Instance.OpenPanel(UIManager.Instance.GetPanel<ResultPanel>());
         }
         else
         {
@@ -484,5 +506,72 @@ public class GameManager : Singleton<GameManager>
             CreateShootBubble();
             status = GameStatus.Play;
         }
+    }
+
+    bool CheckGameMode()
+    {
+        bool result = false;
+
+        switch (mode)
+        {
+            case GameMode.Normal:
+                result = false;
+                break;
+            case GameMode.Boss:
+                break;
+            case GameMode.Rescue:
+                break;
+            default:
+                break;
+        }
+
+        return result;
+    }
+
+    public void OnClickChangeBubble()
+    {
+        if (bubbleCount < 2 || status != GameStatus.Play)
+        {
+            return;
+        }
+        else if (bubbleCount == 2)
+        {
+            BubbleObject bubbleObject = shootBubbles[0];
+            shootBubbles[0] = shootBubbles[1];
+            shootBubbles[0].transform.position = setBubble[0].transform.position;
+            shootBubbles[1] = bubbleObject;
+            shootBubbles[1].transform.position = setBubble[1].transform.position;
+        }
+        else
+        {   
+            BubbleObject bubbleObject = shootBubbles[2];
+            shootBubbles[2] = shootBubbles[0];
+            shootBubbles[2].transform.position = setBubble[2].transform.position;
+
+            BubbleObject bubbleObject2 = shootBubbles[1];
+            shootBubbles[1] = bubbleObject;
+            shootBubbles[1].transform.position = setBubble[1].transform.position;
+
+            shootBubbles[0] = bubbleObject2;
+            shootBubbles[0].transform.position = setBubble[0].transform.position;
+        }
+
+        for (int i = 0; i < shootBubbles.Count; i++)
+        {
+            if (shootBubbles[i] == null)
+            {
+                continue;
+            }
+
+            if (i == 0)
+            {
+                shootBubbles[i].transform.localScale = Vector3.one * bubbleSize;
+            }
+            else
+            {
+                shootBubbles[i].transform.localScale = Vector3.one * bubbleSize * 0.5f;
+            }
+        }
+
     }
 }

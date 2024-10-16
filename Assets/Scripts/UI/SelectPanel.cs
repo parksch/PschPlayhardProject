@@ -39,6 +39,8 @@ public class SelectPanel : PanelBase
 
     public override void Open()
     {
+        GameManager.Instance.Status = ClientEnum.GameStatus.Selection;
+
         for (int i = 0; i < stages.Count; i++)
         {
             stages[i].CheckLock();

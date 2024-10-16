@@ -4,6 +4,9 @@ using UnityEngine;
 
 public abstract class PanelBase : MonoBehaviour 
 {
+    [SerializeField] bool isTranslucent;
+    
+    public bool IsTranslucent => isTranslucent;
     public abstract void FirstLoad();
     public abstract void OnUpdate();
     public abstract void Open();

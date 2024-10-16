@@ -60,7 +60,7 @@ public class BubbleObject : MonoBehaviour
             return;
         }
 
-        transform.position += normal * Time.fixedDeltaTime * 3f;
+        transform.position += normal * Time.fixedDeltaTime * 8f;
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
@@ -107,6 +107,7 @@ public class BubbleObject : MonoBehaviour
 
     public virtual void OnDrop()
     {
+        transform.parent = GameManager.Instance.GameObjectParent;
         rigid.isKinematic = false;
         circleCollider.isTrigger = false;
     }
