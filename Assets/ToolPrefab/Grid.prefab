@@ -272,6 +272,7 @@ MonoBehaviour:
   y: 0
   bubble:
     index: 0
+    type: 0
     contain: 
     hp: 0
     textKey: 
@@ -280,8 +281,10 @@ MonoBehaviour:
     prefab: 
   circleRenderer: {fileID: 6650532605991261006}
   front: {fileID: 8592874419651605594}
+  isEnter: 0
   green: {r: 0, g: 1, b: 0, a: 1}
   white: {r: 1, g: 1, b: 1, a: 1}
+  red: {r: 1, g: 0, b: 0, a: 1}
 --- !u!61 &3318999014776842096
 BoxCollider2D:
   m_ObjectHideFlags: 0

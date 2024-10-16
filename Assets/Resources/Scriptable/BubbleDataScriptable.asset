@@ -53,3 +53,11 @@ MonoBehaviour:
     atlas: Bubbles
     sprite: 10
     prefab: Bubble
+  - index: 6
+    type: 3
+    contain: 
+    hp: 10
+    textKey: Boss
+    atlas: Bubbles
+    sprite: 10
+    prefab: Boss

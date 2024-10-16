@@ -19,6 +19,7 @@ namespace ClientEnum
 	public enum Bubble
 	{ 
 		Normal = 1,
-		Special
+		Special,
+        NoSet,
 	}
 }

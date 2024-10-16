@@ -8,8 +8,8 @@ using UnityEngine;
 
 public class ToolGrid : MonoBehaviour
 {
-    public int x;
-    public int y;
+    public int gridX;
+    public int gridY;
     public BubbleData bubble;
     public SpriteRenderer circleRenderer;
     public SpriteRenderer front;
@@ -17,6 +17,7 @@ public class ToolGrid : MonoBehaviour
     [SerializeField] bool isEnter = false;
     [SerializeField] Color green;
     [SerializeField] Color white;
+    [SerializeField] Color red;
     bool isOn;
 
     public void SetGreen()
@@ -28,6 +29,14 @@ public class ToolGrid : MonoBehaviour
     public void SetWhite()
     {
         circleRenderer.material.color = white;
+        bubble.index = 0;
+        isOn = false;
+        front.gameObject.SetActive(false);
+    }
+
+    public void SetRed()
+    {
+        circleRenderer.material.color = red;
         bubble.index = 0;
         isOn = false;
         front.gameObject.SetActive(false);
@@ -47,7 +56,7 @@ public class ToolGrid : MonoBehaviour
 
     public bool VisitBubble()
     {
-        if (bubble.index != 0 && y == ToolManager.Instance.y)
+        if (bubble.index != 0 && gridY == ToolManager.Instance.maxY)
         {
             return true;
         }
@@ -92,9 +101,9 @@ public class ToolGrid : MonoBehaviour
                     continue;
                 }
 
-                if (ToolManager.Instance.IsValidPosition(x, y, i, j))
+                if (ToolManager.Instance.IsValidPosition(gridX, gridY, i, j))
                 {
-                    toolGrids.Add(ToolManager.Instance.FindToolGridAt((x + j), (y + i)));
+                    toolGrids.Add(ToolManager.Instance.FindToolGridAt((gridX + j), (gridY + i)));
                 }
             }
         }
@@ -113,11 +122,11 @@ public class ToolGrid : MonoBehaviour
                     continue;
                 }
 
-                bool isOddRow = (y % 2 != 0);
+                bool isOddRow = (gridY % 2 != 0);
 
                 if ((i != 0 && ((isOddRow && j > -1) || (!isOddRow && j < 1))) || i == 0)
                 {
-                    ToolGrid tool = ToolManager.Instance.FindToolGridAt(x + j, y + i);
+                    ToolGrid tool = ToolManager.Instance.FindToolGridAt(gridX + j, gridY + i);
                     if (tool != null)
                     {
                         tool.SetGreen();
@@ -164,5 +173,36 @@ public class ToolGrid : MonoBehaviour
     private void OnMouseExit()
     {
         isEnter = false;
+    }
+
+    public void CreateBoss()
+    {
+        SetBubble(ScriptableManager.Instance.bubbleDataScriptable.bubbleData.Find(x => x.index == 6));
+
+        for (int y = 0; y < 2; y++)
+        {
+            for (int x = -1; x < 2; x++)
+            {
+                if (x == 0 && y == 0)
+                {
+                    continue;
+                }
+
+                bool isOdd = gridY % 2 != 0;
+
+                if (y != 0 && ((isOdd && x == -1) || (!isOdd && x == 1)))
+                {
+                    continue;
+                }
+
+                ToolGrid toolGrid = ToolManager.Instance.FindToolGridAt(gridX + x,gridY + y);
+
+                if (toolGrid != null)
+                {
+                    toolGrid.SetRed();
+                }
+            }
+        }
+
     }
 }

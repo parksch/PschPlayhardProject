@@ -16,9 +16,10 @@ public class ToolManager : Singleton<ToolManager>
     public List<ToolGrid> closeGrid = new List<ToolGrid>();
     public List<ToolGrid> finishedGrid = new List<ToolGrid>();
     public JsonClass.BubbleData currentBubble;
-    public int x;
-    public int y;
+    public int maxX;
+    public int maxY;
 
+    [SerializeField] Toggle pathToggle;
     [SerializeField] List<ToolBubbleButton> bubbleButtons = new List<ToolBubbleButton>();
     [SerializeField] ToolBubbleButton buttonPrefab;
     [SerializeField] List<ToolSave> stageButtons = new List<ToolSave>();
@@ -64,6 +65,11 @@ public class ToolManager : Singleton<ToolManager>
 
         for (int i = 0; i < bubbleDatas.Count; i++)
         {
+            if (bubbleDatas[i].Type() == ClientEnum.Bubble.NoSet)
+            {
+                continue;
+            }
+
             if (i == 0)
             {
                 buttonPrefab.SetTarget(bubbleDatas[i]);
@@ -100,20 +106,20 @@ public class ToolManager : Singleton<ToolManager>
 
     void CreateGrid()
     {
-        for (int i = 0; i < y; i++)
+        for (int i = 0; i < maxY; i++)
         {
             gridRow.Add(new GirdRow());
             gridParent.transform.position += Vector3.up;
-            for (int j = 0; j < x -(i % 2 == 0 ? 0: -1); j++)
+            for (int j = 0; j < maxX -(i % 2 == 0 ? 0: -1); j++)
             {
                 GameObject go = Instantiate(gridPrefab);
                 ToolGrid toolGrid = go.GetComponent<ToolGrid>();
-                go.transform.position = new Vector3(-((x / 2) + (i % 2 == 0 ? 0:0.5f)) + j, 0, 0);
+                go.transform.position = new Vector3(-((maxX / 2) + (i % 2 == 0 ? 0:0.5f)) + j, 0, 0);
                 go.transform.parent = gridParent.transform;
-                toolGrid.x = j + 1;
-                toolGrid.y = i + 1;
+                toolGrid.gridX = j + 1;
+                toolGrid.gridY = i + 1;
                 gridRow[i].toolGrids.Add(toolGrid);
-                if (toolGrid.y == y)
+                if (toolGrid.gridY == maxY)
                 {
                     toolGrid.SetGreen();
                 }
@@ -181,7 +187,7 @@ public class ToolManager : Singleton<ToolManager>
         {
             foreach (var tool in row.toolGrids)
             {
-                if (tool.x == x && tool.y == y)
+                if (tool.gridX == x && tool.gridY == y)
                     return tool;  
             }
         }
@@ -226,7 +232,7 @@ public class ToolManager : Singleton<ToolManager>
         {
             foreach (var tool in row.toolGrids)
             {
-                if (tool.bubble.index == 0 && tool.y != y)
+                if (tool.bubble.index == 0 && tool.gridY != maxY)
                 {
                     tool.SetWhite();
                 }
@@ -237,7 +243,7 @@ public class ToolManager : Singleton<ToolManager>
         {
             foreach (var tool in row.toolGrids)
             {
-                if (tool.y == y && tool.bubble.index == 0)
+                if (tool.gridY == maxY && tool.bubble.index == 0)
                 {
                     tool.SetGreen();
                 }
@@ -299,8 +305,8 @@ public class ToolManager : Singleton<ToolManager>
     {
         DestroyGrid();
 
-        x = mapData.x;
-        y = mapData.y;
+        maxX = mapData.x;
+        maxY = mapData.y;
         currentMap = mapData;
         mapName.text = currentMap.stage.ToString();
         saveMapButton.interactable = true;
@@ -351,8 +357,8 @@ public class ToolManager : Singleton<ToolManager>
                 {
                     ToolGrid toolGrid = gridRow[i].toolGrids[j];
                     JsonClass.Layouts layout = new Layouts();
-                    layout.x = toolGrid.x;
-                    layout.y = toolGrid.y;
+                    layout.x = toolGrid.gridX;
+                    layout.y = toolGrid.gridY;
                     layout.bubble = toolGrid.bubble.index;
                     mapData.layouts.Add(layout);
                 }
@@ -367,8 +373,8 @@ public class ToolManager : Singleton<ToolManager>
         saveMapButton.interactable = false;
         removeMapButton.interactable = false;
         currentMap = null;
-        x = 11;
-        y = 11;
+        maxX = 11;
+        maxY = 11;
         DestroyGrid();
         RemoveSaveButton();
         CreateGrid();
@@ -384,8 +390,8 @@ public class ToolManager : Singleton<ToolManager>
     public void OnClickNewSave()
     {
         JsonClass.MapData mapData = new JsonClass.MapData();
-        mapData.x = x;
-        mapData.y = y;
+        mapData.x = maxX;
+        mapData.y = maxY;
         mapData.stage = ScriptableManager.Instance.mapDataScriptable.mapData.Count + 1;
         mapData.name = "stagename";
         mapData.bubbleCount = bubbleCount;
@@ -407,5 +413,49 @@ public class ToolManager : Singleton<ToolManager>
         File.WriteAllText(path, json.ToString(), Encoding.UTF8);
         AssetDatabase.Refresh();
         EditorUtility.DisplayDialog("결과", "Scriptable 에서 Json 변환", "확인");
+    }
+
+    public void OnClickToggle()
+    {
+        DestroyGrid();
+
+        if (pathToggle.isOn)
+        {
+            CreatePath();
+        }
+        else
+        {
+            CreateGrid();
+        }
+    }
+
+    public void CreatePath()
+    {
+        if (maxX % 2 == 0)
+        {
+            maxX -= 1;
+        }
+
+        ToolGrid toolGrid = null;
+
+        for (int y = 0; y < maxY; y++)
+        {
+            gridRow.Add(new GirdRow());
+            gridParent.transform.position += Vector3.up;
+            for (int x = 0; x < maxX - (y % 2 == 0 ? 0 : -1); x++)
+            {
+                GameObject go = Instantiate(gridPrefab);
+                toolGrid = go.GetComponent<ToolGrid>();
+                go.transform.position = new Vector3(-((maxX / 2) + (y % 2 == 0 ? 0 : 0.5f)) + x, 0, 0);
+                go.transform.parent = gridParent.transform;
+                toolGrid.gridX = x + 1;
+                toolGrid.gridY = y + 1;
+
+                gridRow[y].toolGrids.Add(toolGrid);
+            }
+        }
+
+        toolGrid = FindToolGridAt((maxX / 2) + 1, 1);
+        toolGrid.CreateBoss();
     }
 }
