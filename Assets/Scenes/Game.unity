@@ -123,88 +123,6 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!1001 &33451006
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 1644726132}
-    m_Modifications:
-    - target: {fileID: -7691761423051051106, guid: 6166c35a88ce3b04b83cb0bd589b10e0, type: 3}
-      propertyPath: m_BodyType
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 6525769690373527342, guid: 6166c35a88ce3b04b83cb0bd589b10e0, type: 3}
-      propertyPath: m_Name
-      value: Bubble
-      objectReference: {fileID: 0}
-    - target: {fileID: 7393430572385809229, guid: 6166c35a88ce3b04b83cb0bd589b10e0, type: 3}
-      propertyPath: m_Enabled
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7393430572385809229, guid: 6166c35a88ce3b04b83cb0bd589b10e0, type: 3}
-      propertyPath: m_IsTrigger
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7753969847109950425, guid: 6166c35a88ce3b04b83cb0bd589b10e0, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7753969847109950425, guid: 6166c35a88ce3b04b83cb0bd589b10e0, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7753969847109950425, guid: 6166c35a88ce3b04b83cb0bd589b10e0, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7753969847109950425, guid: 6166c35a88ce3b04b83cb0bd589b10e0, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: -4.75
-      objectReference: {fileID: 0}
-    - target: {fileID: 7753969847109950425, guid: 6166c35a88ce3b04b83cb0bd589b10e0, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7753969847109950425, guid: 6166c35a88ce3b04b83cb0bd589b10e0, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7753969847109950425, guid: 6166c35a88ce3b04b83cb0bd589b10e0, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7753969847109950425, guid: 6166c35a88ce3b04b83cb0bd589b10e0, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7753969847109950425, guid: 6166c35a88ce3b04b83cb0bd589b10e0, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7753969847109950425, guid: 6166c35a88ce3b04b83cb0bd589b10e0, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7753969847109950425, guid: 6166c35a88ce3b04b83cb0bd589b10e0, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7753969847109950425, guid: 6166c35a88ce3b04b83cb0bd589b10e0, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 6166c35a88ce3b04b83cb0bd589b10e0, type: 3}
---- !u!4 &33451008 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 7753969847109950425, guid: 6166c35a88ce3b04b83cb0bd589b10e0, type: 3}
-  m_PrefabInstance: {fileID: 33451006}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &168618113
 GameObject:
   m_ObjectHideFlags: 0
@@ -246,6 +164,7 @@ MonoBehaviour:
   bubbleCount: {fileID: 1242742779}
   l: {fileID: 879880075}
   r: {fileID: 1360334728}
+  offset: 1.01
 --- !u!4 &168618115
 Transform:
   m_ObjectHideFlags: 0
@@ -390,24 +309,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   status: 0
+  mode: 0
   bubbleGameObject: {fileID: 1644726131}
+  gameObjectParent: {fileID: 1644726132}
   bubbleParent: {fileID: 588407963}
   setBubble:
   - {fileID: 408217535}
   - {fileID: 1017972602}
   - {fileID: 302580720}
-  shootBubble:
+  shootBubbles:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
-  bubbles: []
-  shootBubbles: 
+  visitBubbles: []
+  closeBubbles: []
+  shootBubbleID: 
   prefab: {fileID: 6927465099996393093, guid: 6166c35a88ce3b04b83cb0bd589b10e0, type: 3}
   bubbleSize: 1
   bubbleCount: 0
   horizontal: 10
-  x: 0
-  y: 0
+  targetX: 0
+  targetY: 0
 --- !u!1 &302580719
 GameObject:
   m_ObjectHideFlags: 0
@@ -2082,6 +2004,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1124225513}
   - component: {fileID: 1124225514}
+  - component: {fileID: 1124225515}
   m_Layer: 7
   m_Name: BubbleDeath
   m_TagString: Untagged
@@ -2098,7 +2021,7 @@ Transform:
   m_GameObject: {fileID: 1124225512}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -21, z: 0}
+  m_LocalPosition: {x: 0, y: -24, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2133,7 +2056,7 @@ BoxCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
@@ -2149,6 +2072,33 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 14.26, y: 5}
   m_EdgeRadius: 0
+--- !u!50 &1124225515
+Rigidbody2D:
+  serializedVersion: 4
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1124225512}
+  m_BodyType: 1
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDrag: 0
+  m_AngularDrag: 0.05
+  m_GravityScale: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 0
 --- !u!1 &1130176187
 GameObject:
   m_ObjectHideFlags: 0
@@ -2535,7 +2485,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1644726132
 Transform:
   m_ObjectHideFlags: 0
@@ -2559,7 +2509,6 @@ Transform:
   - {fileID: 588407963}
   - {fileID: 1189848140}
   - {fileID: 789134614}
-  - {fileID: 33451008}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1694769256

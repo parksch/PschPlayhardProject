@@ -50,11 +50,21 @@ public class ResourcesManager : Singleton<ResourcesManager>
         return gameObject;
     }
 
+    public void Push(string name,GameObject gameObject)
+    {
+        gameObject.SetActive(false);
+        gameObject.transform.parent = transform;
+        gameObject.transform.localPosition = Vector3.zero;
+
+        gameObjectDict[name].objects.Enqueue(gameObject);
+    }
+
     void CreateResource(ResourcesObject resourcesObject)
     {
         for (int i = 0; i < defaultCreateNum; i++)
         {
             GameObject gameObject = Instantiate(resourcesObject.prefab,transform);
+            gameObject.name = resourcesObject.prefab.name;
             gameObject.SetActive(false);
             resourcesObject.objects.Enqueue(gameObject);
         }

@@ -9,9 +9,10 @@ namespace JsonClass
 
     public partial class MapData
     {
+        public ClientEnum.GameMode GameMode() => (ClientEnum.GameMode)gameMode;
     }
 
-    public partial class Layout
+    public partial class Layouts
     {
 
     }

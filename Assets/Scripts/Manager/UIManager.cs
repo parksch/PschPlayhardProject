@@ -14,6 +14,7 @@ public class UIManager : Singleton<UIManager>
     [SerializeField] Text bubbleCount;
     [SerializeField] RectTransform l;
     [SerializeField] RectTransform r;
+    [SerializeField] float offset;
 
     float horizontal;
     Vector3 centerNormal = Vector3.zero;
@@ -66,13 +67,15 @@ public class UIManager : Singleton<UIManager>
     {
         lineRenderers[lineIndex].SetPosition(0, start);
 
-        int layerMask = (1 << LayerMask.NameToLayer("Wall")) | (1 << LayerMask.NameToLayer("TopWall"));
-        float radius = GameManager.Instance.CurrentBubbleRadius;
+        int layerMask = (1 << LayerMask.NameToLayer("Wall")) | (1 << LayerMask.NameToLayer("TopWall") | (1 << LayerMask.NameToLayer("Bubble"))) ;
+        float radius = GameManager.Instance.CurrentBubbleRadius * offset;
         RaycastHit2D hit = Physics2D.CircleCast(new Vector2(start.x, start.y), radius, new Vector2(normal.x, normal.y), 100f, layerMask);
 
         if (hit.collider != null)
         {
-            Vector3 point = hit.point + (hit.normal * radius);
+            Vector3 point = Vector3.zero;
+            point = hit.point + (hit.normal * radius);
+
             lineRenderers[lineIndex].SetPosition(1, point);
             lineRenderers[lineIndex].gameObject.SetActive(true);
 

@@ -14,6 +14,28 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mapData:
   - x: 7
+    y: 3
+    stage: 1
+    name: stagename
+    gameMode: 1
+    bubbleCount: 20
+    layouts:
+    - y: 1
+      x: 1
+      bubble: 3
+    - y: 2
+      x: 1
+      bubble: 2
+    - y: 2
+      x: 2
+      bubble: 2
+    - y: 2
+      x: 3
+      bubble: 2
+    - y: 3
+      x: 1
+      bubble: 3
+  - x: 7
     y: 7
     stage: 1
     name: stagename

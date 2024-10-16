@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using TMPro.EditorUtilities;
 using UnityEngine;
 
 namespace JsonClass
@@ -18,14 +17,15 @@ namespace JsonClass
         public string name;
         public int gameMode;
         public int bubbleCount;
-        public List<Layout> layouts;
+        public List<Layouts> layouts;
     }
 
     [System.Serializable]
-    public partial class Layout
+    public partial class Layouts
     {
         public int y;
         public int x;
         public int bubble;
     }
+
 }

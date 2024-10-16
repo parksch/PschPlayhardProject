@@ -158,6 +158,7 @@ MonoBehaviour:
   finishedGrid: []
   currentBubble:
     index: 0
+    type: 0
     contain: 
     hp: 0
     textKey: 
@@ -1160,6 +1161,7 @@ MonoBehaviour:
   text: {fileID: 1536472432}
   target:
     index: 0
+    type: 0
     contain: 
     hp: 0
     textKey: 

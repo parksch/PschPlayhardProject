@@ -10,7 +10,7 @@ public class TouchInput : MonoBehaviour
 
     void Update()
     {
-        if (GameManager.Instance.Status != GameStatus.Play)
+        if (GameManager.Instance.Status != ClientEnum.GameStatus.Play)
         {
             return;
         }

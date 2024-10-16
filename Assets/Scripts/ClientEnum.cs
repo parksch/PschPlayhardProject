@@ -1,8 +1,15 @@
 namespace ClientEnum
 {
-	public enum GameMode
+    public enum GameStatus
+    {
+        Selection,
+        Play,
+        Running
+    }
+
+    public enum GameMode
 	{
-		Normal,
+		Normal = 1,
 		Boss,
         Rescue
     }

@@ -338,7 +338,7 @@ public class ToolManager : Singleton<ToolManager>
     {
         if (mapData.layouts == null)
         {
-           mapData.layouts = new List<Layout>();
+           mapData.layouts = new List<Layouts>();
         }
 
         mapData.layouts.Clear();
@@ -350,7 +350,7 @@ public class ToolManager : Singleton<ToolManager>
                 if (gridRow[i].toolGrids[j].bubble.index != 0)
                 {
                     ToolGrid toolGrid = gridRow[i].toolGrids[j];
-                    JsonClass.Layout layout = new Layout();
+                    JsonClass.Layouts layout = new Layouts();
                     layout.x = toolGrid.x;
                     layout.y = toolGrid.y;
                     layout.bubble = toolGrid.bubble.index;
