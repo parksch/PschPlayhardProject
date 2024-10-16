@@ -25,17 +25,37 @@ public class GameManager : Singleton<GameManager>
     [SerializeField] Dictionary<Vector2Int,BubbleObject> bubbles = new Dictionary<Vector2Int, BubbleObject>();
     [SerializeField] List<BubbleObject> visitBubbles = new List<BubbleObject>();
     [SerializeField] List<BubbleObject> closeBubbles = new List<BubbleObject>();
+    [SerializeField] List<BubbleObject> dropBubbles = new List<BubbleObject>();
     [SerializeField] List<int> shootBubbleID = new List<int>();
     [SerializeField] BubbleObject prefab;
     [SerializeField] Image fillImage;
+    [SerializeField] float horizontal = 10;
     [SerializeField] float bubbleSize = 1;
     [SerializeField] int bubbleCount;
-    [SerializeField] int horizontal = 10;
     [SerializeField] int targetX, targetY;
     [SerializeField] int stage;
     [SerializeField] int skillGauge;
     [SerializeField] int currentSkillGauge;
 
+    public float Horizontal
+    {
+        get
+        {
+            return horizontal;
+        }
+        set
+        {
+            horizontal = value;
+        }
+    }
+    public void RemoveDropBubble(BubbleObject bubble)
+    { 
+        dropBubbles.Remove(bubble);
+        if (dropBubbles.Count == 0)
+        {
+            CheckStage();
+        }
+    }
     public void AddSkillGauge(int num = 1)
     {
         currentSkillGauge += num;
@@ -198,7 +218,7 @@ public class GameManager : Singleton<GameManager>
         }
 
         Dictionary<Vector2Int, BubbleObject> bubbleObjects = new Dictionary<Vector2Int, BubbleObject>();
-        bubbleSize = (float)horizontal / targetX;
+        bubbleSize = (float)Horizontal / targetX;
 
         foreach (JsonClass.Layouts layout in _bubbles)
         {
@@ -423,6 +443,7 @@ public class GameManager : Singleton<GameManager>
     void CheckBubbleRoot()
     {
         visitBubbles.Clear();
+        dropBubbles.Clear();
 
         foreach (var item in bubbles.Values)
         {
@@ -454,7 +475,10 @@ public class GameManager : Singleton<GameManager>
             closeBubbles.Clear();
         }
 
-        CheckStage();
+        if (dropBubbles.Count == 0)
+        {
+            CheckStage();
+        }
     }
 
     void DropBubbles(List<BubbleObject> bubbleObjects)
@@ -464,6 +488,7 @@ public class GameManager : Singleton<GameManager>
             if (bubbles.ContainsKey(bubbleObjects[i].Grid))
             {
                 bubbles.Remove(bubbleObjects[i].Grid);
+                dropBubbles.Add(bubbleObjects[i]);
                 bubbleObjects[i].OnDrop();
             }
         }

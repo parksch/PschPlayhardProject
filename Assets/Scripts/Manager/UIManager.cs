@@ -12,13 +12,13 @@ public class UIManager : Singleton<UIManager>
     [SerializeField] List<LineRenderer> lineRenderers;
     [SerializeField] PanelBase initlizePanel;
     [SerializeField] Text bubbleCount;
-    [SerializeField] RectTransform l;
-    [SerializeField] RectTransform r;
+    [SerializeField] TouchInput touchInput;
     [SerializeField] float offset;
 
-    float horizontal;
     Vector3 centerNormal = Vector3.zero;
     PanelBase currentPanel;
+
+    public void TouchOnOff(bool value) => touchInput.gameObject.SetActive(value);
 
     protected override void Awake()
     {
@@ -33,8 +33,6 @@ public class UIManager : Singleton<UIManager>
         }
 
         OpenPanel(initlizePanel);
-        horizontal = Vector3.Distance(l.position,r.position);
-        Debug.Log(horizontal);
     }
 
     public void SetBubbleCount(int num) => bubbleCount.text = num.ToString();
@@ -121,6 +119,7 @@ public class UIManager : Singleton<UIManager>
         currentPanel = panel;
         currentPanel.Open();
         currentPanel.gameObject.SetActive(true);
+        touchInput.enabled = false;
     }
 
     public void ClosePanel()
@@ -129,6 +128,7 @@ public class UIManager : Singleton<UIManager>
         currentPanel.gameObject.SetActive(false);
         currentPanel = null;
         rawImage.SetActive(true);
+        touchInput.enabled = true;
     }
 
     public void UpdatePanel()

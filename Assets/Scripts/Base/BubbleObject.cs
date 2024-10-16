@@ -87,6 +87,7 @@ public class BubbleObject : MonoBehaviour
         if (collision.gameObject.layer == LayerMask.NameToLayer("BubbleDeath"))
         {
             GameManager.Instance.AddSkillGauge();
+            GameManager.Instance.RemoveDropBubble(this);
             ResourcesManager.Instance.Push(name, gameObject);
         }
     }
