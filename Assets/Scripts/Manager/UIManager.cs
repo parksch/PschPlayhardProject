@@ -7,6 +7,7 @@ using UnityEngine.UI;
 public class UIManager : Singleton<UIManager>
 {
     [SerializeField] GameObject rawImage;
+    [SerializeField] Slider bossHp;
     [SerializeField] Transform centerTrans;
     [SerializeField] List<PanelBase> panels = new List<PanelBase>();
     [SerializeField] List<LineRenderer> lineRenderers;
@@ -18,6 +19,7 @@ public class UIManager : Singleton<UIManager>
     Vector3 centerNormal = Vector3.zero;
     PanelBase currentPanel;
 
+    public void HpOnOff(bool value) => bossHp.gameObject.SetActive(value);
     public void TouchOnOff(bool value) => touchInput.gameObject.SetActive(value);
 
     protected override void Awake()
@@ -142,5 +144,10 @@ public class UIManager : Singleton<UIManager>
     public T GetPanel<T>() where T : PanelBase
     {
         return panels.Find(x => x.GetType() == typeof(T)) as T;    
+    }
+
+    public void SetBossHp(int hp,int max)
+    {
+        bossHp.value = (float)hp/ max;
     }
 }

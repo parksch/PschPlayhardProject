@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: MapDataScriptable
   m_EditorClassIdentifier: 
   mapData:
-  - x: 7
-    y: 3
+  - x: 9
+    y: 6
     stage: 1
     next: 2
     name: stagename
@@ -23,6 +23,30 @@ MonoBehaviour:
     layouts:
     - y: 1
       x: 1
+      bubble: 3
+    - y: 1
+      x: 2
+      bubble: 3
+    - y: 1
+      x: 3
+      bubble: 3
+    - y: 1
+      x: 4
+      bubble: 3
+    - y: 1
+      x: 5
+      bubble: 3
+    - y: 1
+      x: 6
+      bubble: 3
+    - y: 1
+      x: 7
+      bubble: 3
+    - y: 1
+      x: 8
+      bubble: 3
+    - y: 1
+      x: 9
       bubble: 3
     - y: 2
       x: 1
@@ -33,9 +57,78 @@ MonoBehaviour:
     - y: 2
       x: 3
       bubble: 2
+    - y: 2
+      x: 4
+      bubble: 2
+    - y: 2
+      x: 5
+      bubble: 2
+    - y: 2
+      x: 6
+      bubble: 2
+    - y: 2
+      x: 7
+      bubble: 2
+    - y: 2
+      x: 8
+      bubble: 2
+    - y: 2
+      x: 9
+      bubble: 2
+    - y: 2
+      x: 10
+      bubble: 2
     - y: 3
       x: 1
       bubble: 3
+    - y: 3
+      x: 2
+      bubble: 3
+    - y: 3
+      x: 4
+      bubble: 3
+    - y: 3
+      x: 5
+      bubble: 3
+    - y: 3
+      x: 6
+      bubble: 3
+    - y: 3
+      x: 7
+      bubble: 3
+    - y: 3
+      x: 8
+      bubble: 3
+    - y: 3
+      x: 9
+      bubble: 3
+    - y: 4
+      x: 1
+      bubble: 2
+    - y: 4
+      x: 2
+      bubble: 2
+    - y: 4
+      x: 5
+      bubble: 2
+    - y: 4
+      x: 6
+      bubble: 2
+    - y: 4
+      x: 7
+      bubble: 2
+    - y: 4
+      x: 9
+      bubble: 2
+    - y: 4
+      x: 10
+      bubble: 2
+    - y: 5
+      x: 1
+      bubble: 2
+    - y: 6
+      x: 1
+      bubble: 2
   - x: 7
     y: 7
     stage: 2
@@ -755,8 +848,8 @@ MonoBehaviour:
     stage: 5
     next: 6
     name: stagename
-    gameMode: 0
-    bubbleCount: 0
+    gameMode: 1
+    bubbleCount: 20
     layouts:
     - y: 1
       x: 6
@@ -800,3 +893,20 @@ MonoBehaviour:
     - y: 11
       x: 9
       bubble: 1
+  - x: 9
+    y: 7
+    stage: 1
+    next: 0
+    name: stagename
+    gameMode: 2
+    bubbleCount: 20
+    layouts:
+    - y: 1
+      x: 3
+      bubble: 7
+    - y: 1
+      x: 5
+      bubble: 6
+    - y: 1
+      x: 7
+      bubble: 8

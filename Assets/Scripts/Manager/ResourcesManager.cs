@@ -5,7 +5,7 @@ using UnityEngine.U2D;
 
 public class ResourcesManager : Singleton<ResourcesManager>
 {
-    [SerializeField] int defaultCreateNum = 30;
+    [SerializeField] int defaultCreateNum = 15;
     Dictionary<string,SpriteAtlas> atlasDict = new Dictionary<string,SpriteAtlas>();
     Dictionary<string, ResourcesObject> gameObjectDict = new Dictionary<string, ResourcesObject>();
 

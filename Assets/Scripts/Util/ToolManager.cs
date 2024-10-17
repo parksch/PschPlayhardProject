@@ -6,6 +6,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 using System.IO;
+using ClientEnum;
 
 public class ToolManager : Singleton<ToolManager>
 {
@@ -303,8 +304,17 @@ public class ToolManager : Singleton<ToolManager>
 
     public void LoadMap(MapData mapData)
     {
-        DestroyGrid();
+        if (mapData.gameMode == 2)
+        {
+            pathToggle.isOn = true;
+        }
+        else
+        {
+            pathToggle.isOn = false;
+        }
 
+        DestroyGrid();
+        gameMode = mapData.gameMode;
         maxX = mapData.x;
         maxY = mapData.y;
         currentMap = mapData;
@@ -312,8 +322,15 @@ public class ToolManager : Singleton<ToolManager>
         saveMapButton.interactable = true;
         removeMapButton.interactable = true;
 
-        CreateGrid();
-        MapDataSetBubble();
+        if (gameMode == 2)
+        {
+            CreatePath();
+        }
+        else
+        {
+            CreateGrid();
+            MapDataSetBubble();
+        }
     }
 
     void MapDataSetBubble()
@@ -334,6 +351,7 @@ public class ToolManager : Singleton<ToolManager>
             else
             {
                 toolGrid.SetBubble(ScriptableManager.Instance.bubbleDataScriptable.bubbleData.Find(x => x.index == currentMap.layouts[i].bubble));
+                toolGrid.OnClickButton();
             }
         }
 
@@ -421,16 +439,23 @@ public class ToolManager : Singleton<ToolManager>
 
         if (pathToggle.isOn)
         {
+            gameMode = 2;
             CreatePath();
         }
         else
         {
+            gameMode = 1;
             CreateGrid();
         }
     }
 
     public void CreatePath()
     {
+        if (maxX < 9)
+        {
+            maxX = 9;
+        }
+
         if (maxX % 2 == 0)
         {
             maxX -= 1;

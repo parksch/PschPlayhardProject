@@ -22,4 +22,11 @@ namespace ClientEnum
 		Special,
         NoSet,
 	}
+
+    public enum BubbleProperty
+    {
+        HitBoss = 1,
+        CollisionBubble,
+        Rescue
+    }
 }

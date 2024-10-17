@@ -147,7 +147,6 @@ public class ToolGrid : MonoBehaviour
         bubble.prefab = target.prefab;
         front.sprite = ResourcesManager.Instance.GetSprite(bubble.atlas, bubble.sprite);
         front.gameObject.SetActive(true);
-        OnClickButton();
     }
 
     private void Update()
@@ -157,6 +156,7 @@ public class ToolGrid : MonoBehaviour
             if (Input.GetMouseButtonDown(0))
             {
                 SetBubble(ToolManager.Instance.currentBubble);
+                OnClickButton();
             }
             else if (Input.GetMouseButtonDown(1) && bubble.index != 0)
             {
@@ -178,6 +178,13 @@ public class ToolGrid : MonoBehaviour
     public void CreateBoss()
     {
         SetBubble(ScriptableManager.Instance.bubbleDataScriptable.bubbleData.Find(x => x.index == 6));
+        ToolGrid toolGrid = null;
+
+        toolGrid = ToolManager.Instance.FindToolGridAt(gridX - 2, gridY);
+        toolGrid.SetBubble(ScriptableManager.Instance.bubbleDataScriptable.bubbleData.Find(x => x.index == 7));
+
+        toolGrid = ToolManager.Instance.FindToolGridAt(gridX + 2, gridY);
+        toolGrid.SetBubble(ScriptableManager.Instance.bubbleDataScriptable.bubbleData.Find(x => x.index == 8));
 
         for (int y = 0; y < 2; y++)
         {
@@ -195,7 +202,7 @@ public class ToolGrid : MonoBehaviour
                     continue;
                 }
 
-                ToolGrid toolGrid = ToolManager.Instance.FindToolGridAt(gridX + x,gridY + y);
+                toolGrid = ToolManager.Instance.FindToolGridAt(gridX + x,gridY + y);
 
                 if (toolGrid != null)
                 {

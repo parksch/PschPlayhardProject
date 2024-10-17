@@ -1,16 +1,9 @@
 using ClientEnum;
 using JsonClass;
-using System.Collections;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Resources;
-using TMPro.EditorUtilities;
-using Unity.Android.Types;
-using Unity.VisualScripting;
-using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.XR;
 
 
 public class GameManager : Singleton<GameManager>
@@ -37,6 +30,8 @@ public class GameManager : Singleton<GameManager>
     [SerializeField] int skillGauge;
     [SerializeField] int currentSkillGauge;
 
+    public int TargetX => targetX;
+    public int TargetY => targetY;
     public float Horizontal
     {
         get
@@ -53,9 +48,36 @@ public class GameManager : Singleton<GameManager>
         dropBubbles.Remove(bubble);
         if (dropBubbles.Count == 0)
         {
-            CheckStage();
+            EndPhase();
         }
     }
+
+    public void OnClickSkill()
+    {
+        if (status != GameStatus.Play)
+        {
+            return;
+        }
+
+        if (currentSkillGauge < skillGauge)
+        {
+            if (bubbleCount > 1)
+            {
+                bubbleCount--;
+                currentSkillGauge++;
+                UIManager.Instance.SetBubbleCount(bubbleCount);
+            }
+        }
+        else
+        {
+            bubbleCount += 1;
+            currentSkillGauge = 0;
+            CreateSkillBubble();
+        }
+
+        fillImage.fillAmount = (float)currentSkillGauge / skillGauge;
+    }
+
     public void AddSkillGauge(int num = 1)
     {
         currentSkillGauge += num;
@@ -67,13 +89,36 @@ public class GameManager : Singleton<GameManager>
 
         fillImage.fillAmount = (float)currentSkillGauge / skillGauge;
     }
+    public Transform BubbleParent => bubbleParent;
     public Transform GameObjectParent => gameObjectParent;
+    public GameMode GameMode => mode;
     public GameStatus Status
     {
         get { return status; }
         set { status = value; }
     }
     public float CurrentBubbleRadius => shootBubbles[0].Radius;
+    public Dictionary<Vector2Int, BubbleObject> Bubbles => bubbles;
+
+    void CreateSkillBubble()
+    {
+        JsonClass.BubbleData bubbleData = ScriptableManager.Instance.bubbleDataScriptable.bubbleData.Find(x => x.index == 9);
+        BubbleObject bubbleObject = ResourcesManager.Instance.Get(bubbleData.prefab).GetComponent<BubbleObject>();
+        bubbleObject.transform.parent = gameObjectParent;
+        bubbleObject.Set(bubbleData, Vector2Int.zero, true);
+        bubbleObject.gameObject.SetActive(true);
+        
+        if (bubbleCount < 2)
+        {
+            shootBubbles[1] = bubbleObject;
+        }
+        else 
+        {
+            shootBubbles[1] = bubbleObject;
+        }
+
+        OnClickChangeBubble();
+    }
 
     protected override void Awake()
     {
@@ -102,6 +147,7 @@ public class GameManager : Singleton<GameManager>
 
     public void SetStage(MapData mapData)
     {
+        UIManager.Instance.HpOnOff(false);
         currentSkillGauge = 0;
         fillImage.fillAmount = 0;
         stage = mapData.stage;
@@ -109,7 +155,7 @@ public class GameManager : Singleton<GameManager>
         targetY = mapData.y;
         bubbleCount = mapData.bubbleCount;
         mode = mapData.GameMode();
-        bubbles = CreateBubbles(mapData.layouts);
+        CreateBubbles(mapData.layouts);
         CheckShootBubble();
         CreateShootBubble();
         bubbleGameObject.SetActive(true);
@@ -121,13 +167,25 @@ public class GameManager : Singleton<GameManager>
     {
         shootBubbleID.Clear();
 
-        foreach (var item in bubbles)
+        if (mode == GameMode.Boss)
         {
-            if (!shootBubbleID.Contains(item.Value.ID) && ScriptableManager.Instance.bubbleDataScriptable.GetBubbleType(item.Value.ID) == ClientEnum.Bubble.Normal)
+            List<JsonClass.BubbleData> bubbles = ScriptableManager.Instance.bubbleDataScriptable.bubbleData.FindAll(x => (ClientEnum.Bubble)x.type == ClientEnum.Bubble.Normal);
+
+            foreach (var item in bubbles)
             {
-                shootBubbleID.Add(item.Value.ID);
+                shootBubbleID.Add(item.index);
             }
-        }   
+        }
+        else
+        {
+            foreach (var item in bubbles)
+            {
+                if (!shootBubbleID.Contains(item.Value.ID) && ScriptableManager.Instance.bubbleDataScriptable.GetBubbleType(item.Value.ID) == ClientEnum.Bubble.Normal)
+                {
+                    shootBubbleID.Add(item.Value.ID);
+                }
+            }
+        }
     }
 
     public void CreateShootBubble()
@@ -161,7 +219,7 @@ public class GameManager : Singleton<GameManager>
 
                         if (!shootBubbleID.Contains(shootBubbles[i].ID))
                         {
-                            int rand = shootBubbleID[Random.Range(0, shootBubbleID.Count)];
+                            int rand = shootBubbleID[UnityEngine.Random.Range(0, shootBubbleID.Count)];
                             JsonClass.BubbleData bubbleData = ScriptableManager.Instance.bubbleDataScriptable.bubbleData.Find(x => x.index == rand);
                             shootBubbles[i].Set(bubbleData, Vector2Int.zero, true);
                         }
@@ -170,7 +228,7 @@ public class GameManager : Singleton<GameManager>
             }
             else if (!shootBubbleID.Contains(shootBubbles[i].ID))
             {
-                int rand = shootBubbleID[Random.Range(0, shootBubbleID.Count)];
+                int rand = shootBubbleID[UnityEngine.Random.Range(0, shootBubbleID.Count)];
                 JsonClass.BubbleData bubbleData = ScriptableManager.Instance.bubbleDataScriptable.bubbleData.Find(x => x.index == rand);
                 shootBubbles[i].Set(bubbleData, Vector2Int.zero, true);
             }
@@ -198,7 +256,7 @@ public class GameManager : Singleton<GameManager>
 
     BubbleObject GetShootBubble()
     {
-        int rand = shootBubbleID[Random.Range(0, shootBubbleID.Count)];
+        int rand = shootBubbleID[UnityEngine.Random.Range(0, shootBubbleID.Count)];
         JsonClass.BubbleData bubbleData = ScriptableManager.Instance.bubbleDataScriptable.bubbleData.Find(x => x.index == rand);
         BubbleObject bubble = ResourcesManager.Instance.Get(bubbleData.prefab).GetComponent<BubbleObject>();
         bubble.Set(bubbleData, Vector2Int.zero,true);
@@ -206,7 +264,30 @@ public class GameManager : Singleton<GameManager>
         return bubble;
     }
 
-    Dictionary<Vector2Int, BubbleObject> CreateBubbles(List<JsonClass.Layouts> _bubbles)
+    public BubbleObject GetBubbleObject(int index,int x,int y)
+    {
+        JsonClass.BubbleData bubbleData = ScriptableManager.Instance.bubbleDataScriptable.bubbleData.Find(x => x.index == index);
+        BubbleObject bubbleObject = ResourcesManager.Instance.Get(bubbleData.prefab).GetComponent<BubbleObject>();
+
+        bubbleObject.Set(bubbleData, new Vector2Int(x, y));
+        bubbleObject.transform.parent = bubbleParent;
+
+        if (bubbleObject.ID == 6)
+        {
+            bubbleObject.transform.localScale = Vector3.one * bubbleSize * 2.5f;
+        }
+        else
+        {
+            bubbleObject.transform.localScale = Vector3.one * bubbleSize;
+        }
+
+        bubbleObject.transform.position = BubblePos(x, y);
+        bubbleObject.gameObject.SetActive(true);
+        bubbleObject.OnCreate();
+        return bubbleObject;
+    }
+
+    void CreateBubbles(List<JsonClass.Layouts> _bubbles)
     {
         if (bubbles.Count > 0)
         {
@@ -217,28 +298,18 @@ public class GameManager : Singleton<GameManager>
             bubbles.Clear();
         }
 
-        Dictionary<Vector2Int, BubbleObject> bubbleObjects = new Dictionary<Vector2Int, BubbleObject>();
         bubbleSize = (float)Horizontal / targetX;
 
         foreach (JsonClass.Layouts layout in _bubbles)
         {
-            JsonClass.BubbleData bubbleData = ScriptableManager.Instance.bubbleDataScriptable.bubbleData.Find(x => x.index == layout.bubble);
-            BubbleObject bubbleObject = ResourcesManager.Instance.Get(bubbleData.prefab).GetComponent<BubbleObject>();
-
-            bubbleObject.Set(bubbleData,new Vector2Int(layout.x,layout.y));
-            bubbleObject.transform.parent = bubbleParent;
-            bubbleObject.transform.localScale = Vector3.one * bubbleSize;
-            bubbleObject.transform.position = BubblePos(layout.x,layout.y);
-            bubbleObject.gameObject.SetActive(true);
-
-            bubbleObjects[bubbleObject.Grid] = bubbleObject;
+            BubbleObject bubbleObject = GetBubbleObject(layout.bubble,layout.x,layout.y);
+            bubbles[bubbleObject.Grid] = bubbleObject;
         }
 
         bubbleParent.transform.position += Vector3.up * targetY * bubbleSize;
-        return bubbleObjects;
     }
 
-    Vector3 BubblePos(int _x,int _y)
+    public Vector3 BubblePos(int _x,int _y)
     {
         Vector3 pos = Vector3.zero;
         float offset = 0;
@@ -337,6 +408,7 @@ public class GameManager : Singleton<GameManager>
 
     public void CheckBubble(BubbleObject bubbleObject)
     {
+        bubbleObject.OnCollision();
         visitBubbles.Add(bubbleObject);
 
         for (int i = 0; i < visitBubbles.Count; i++)
@@ -365,9 +437,7 @@ public class GameManager : Singleton<GameManager>
     {
         for (int i = 0; i < expBubbles.Count; i++)
         {
-            bubbles.Remove(expBubbles[i].Grid);
             expBubbles[i].OnExplosion();
-            ResourcesManager.Instance.Push(expBubbles[i].name,expBubbles[i].gameObject);
         }
     }
 
@@ -477,7 +547,7 @@ public class GameManager : Singleton<GameManager>
 
         if (dropBubbles.Count == 0)
         {
-            CheckStage();
+            EndPhase();
         }
     }
 
@@ -487,7 +557,6 @@ public class GameManager : Singleton<GameManager>
         {
             if (bubbles.ContainsKey(bubbleObjects[i].Grid))
             {
-                bubbles.Remove(bubbleObjects[i].Grid);
                 dropBubbles.Add(bubbleObjects[i]);
                 bubbleObjects[i].OnDrop();
             }
@@ -556,15 +625,28 @@ public class GameManager : Singleton<GameManager>
                 bubbleParent.transform.position = Vector3.up * GetY() * bubbleSize;
                 break;
             case GameMode.Boss:
-                bubbleParent.transform.position = Vector3.up * GetY() * bubbleSize;
+                BubbleObject bubbleObject = bubbles[new Vector2Int((TargetX / 2 + 1) - 2, 1)];
+                bubbleObject.OnEnd();
+                bubbleObject = bubbles[new Vector2Int((TargetX / 2 + 1) + 2, 1)];
+                bubbleObject.OnEnd();
+
+                int y = GetY();
+
+                if (y < targetY)
+                {
+                    bubbleParent.transform.position = Vector3.up * targetY * bubbleSize;
+                }
+                else
+                {
+                    bubbleParent.transform.position = Vector3.up * GetY() * bubbleSize;
+                }
+
                 break;
             case GameMode.Rescue:
                 break;
             default:
                 break;
         }
-
-        EndPhase();
     }
 
     int GetY()
@@ -583,7 +665,7 @@ public class GameManager : Singleton<GameManager>
 
     public void EndPhase()
     {
-        if (CheckGameMode()|| bubbles.Count == 0)
+        if (CheckGameMode())
         {
             DataManager.Instance.CurrentStage = stage;
             status = GameStatus.Clear;
@@ -596,6 +678,7 @@ public class GameManager : Singleton<GameManager>
         }
         else
         {
+            CheckStage();
             CheckShootBubble();
             CreateShootBubble();
             status = GameStatus.Play;
@@ -609,9 +692,11 @@ public class GameManager : Singleton<GameManager>
         switch (mode)
         {
             case GameMode.Normal:
-                result = false;
+                result = bubbles.Count == 0;
                 break;
             case GameMode.Boss:
+                BubbleBoss bubbleBoss = bubbles[new Vector2Int(targetX / 2 + 1, 1)] as BubbleBoss;
+                result = bubbleBoss.isDeath; 
                 break;
             case GameMode.Rescue:
                 break;
@@ -667,5 +752,22 @@ public class GameManager : Singleton<GameManager>
             }
         }
 
+    }
+
+    public void ActiveProperty(ClientEnum.BubbleProperty property)
+    {
+        switch (property)
+        {
+            case BubbleProperty.HitBoss:
+                BubbleBoss bubbleBoss = bubbles[new Vector2Int(targetX / 2 + 1, 1)] as BubbleBoss;
+                bubbleBoss.Hit();
+                break;
+            case BubbleProperty.CollisionBubble:
+                break;
+            case BubbleProperty.Rescue:
+                break;
+            default:
+                break;
+        }
     }
 }
