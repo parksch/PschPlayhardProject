@@ -26,6 +26,5 @@ namespace ClientEnum
     {
         HitBoss = 1,
         CollisionBubble,
-        Rescue
     }
 }

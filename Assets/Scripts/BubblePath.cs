@@ -1,8 +1,7 @@
 using JsonClass;
-using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
+using DG.Tweening;
 
 public class BubblePath : BubbleObject
 {
@@ -15,6 +14,14 @@ public class BubblePath : BubbleObject
 
     public override void Set(BubbleData bubbleData, Vector2Int target, bool isShoot = false)
     {
+        if (bubbleObjects.Count > 0)
+        {
+            foreach (var item in bubbleObjects)
+            {
+                ResourcesManager.Instance.Push(item.name, item.gameObject);
+            }
+        }
+        bubbleObjects.Clear();
         bubbleDatas = ScriptableManager.Instance.bubbleDataScriptable.bubbleData.FindAll(x => (ClientEnum.Bubble)x.type == ClientEnum.Bubble.Normal);
 
         if (isLeft) 
@@ -146,16 +153,20 @@ public class BubblePath : BubbleObject
 
     public override void OnEnd()
     {
-        while (size > bubbleObjects.Count)
+        if (size > bubbleObjects.Count)
         {
+            Sequence mySequence = DOTween.Sequence();
+            mySequence.OnComplete(() => { OnEnd();});
             int rand = Random.Range(0, 10);
             BubbleObject bubbleObject = GameManager.Instance.GetBubbleObject(bubbleDatas[Random.Range(0, bubbleDatas.Count)].index, Grid.x, Grid.y);
+            bubbleObject.transform.localPosition = GameManager.Instance.BubblePos(Grid.x,Grid.y);
 
             if (rand > 4)
             {
                 bubbleObject.Properties(ClientEnum.BubbleProperty.HitBoss);
             }
-            bubbleObjects.Insert(0,bubbleObject);
+
+            bubbleObjects.Insert(0, bubbleObject);
 
             for (int i = 0; i < bubbleObjects.Count; i++)
             {
@@ -227,7 +238,7 @@ public class BubblePath : BubbleObject
                     }
                     else if (grid.y % 2 == 1)
                     {
-                        if (grid.x - 1 == (GameManager.Instance.TargetX/2 + 1))
+                        if (grid.x - 1 == (GameManager.Instance.TargetX / 2 + 1))
                         {
                             grid.y += 1;
                         }
@@ -239,11 +250,16 @@ public class BubblePath : BubbleObject
                 }
 
                 bubbleObjects[i].Grid = grid;
-                bubbleObjects[i].transform.localPosition = GameManager.Instance.BubblePos(grid.x, grid.y);
 
+                mySequence.Join(bubbleObjects[i].transform.DOLocalMove(GameManager.Instance.BubblePos(grid.x, grid.y), 0.1f));
+                
                 GameManager.Instance.Bubbles[bubbleObjects[i].Grid] = bubbleObjects[i];
             }
         }
-
+        else
+        {
+            GameManager.Instance.RemoveEffectBubbles(this);
+        }
     }
+
 }

@@ -6,6 +6,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
 using System.Resources;
+using Unity.VisualScripting.Antlr3.Runtime.Misc;
 
 public class GameManager : Singleton<GameManager>
 {
@@ -17,10 +18,10 @@ public class GameManager : Singleton<GameManager>
     [SerializeField] Transform bubbleParent;
     [SerializeField] List<Transform> setBubble;
     [SerializeField] List<BubbleObject> shootBubbles;
-    [SerializeField] Dictionary<Vector2Int,BubbleObject> bubbles = new Dictionary<Vector2Int, BubbleObject>();
+    [SerializeField] Dictionary<Vector2Int, BubbleObject> bubbles = new Dictionary<Vector2Int, BubbleObject>();
     [SerializeField] List<BubbleObject> visitBubbles = new List<BubbleObject>();
     [SerializeField] List<BubbleObject> closeBubbles = new List<BubbleObject>();
-    [SerializeField] List<BubbleObject> dropBubbles = new List<BubbleObject>();
+    [SerializeField] List<BubbleObject> effectBubbles = new List<BubbleObject>();
     [SerializeField] List<int> shootBubbleID = new List<int>();
     [SerializeField] BubbleObject prefab;
     [SerializeField] Image fillImage;
@@ -32,6 +33,17 @@ public class GameManager : Singleton<GameManager>
     [SerializeField] int skillGauge;
     [SerializeField] int currentSkillGauge;
 
+    public void AddEffectBubbles(BubbleObject bubble) => effectBubbles.Add(bubble);
+    public void RemoveEffectBubbles(BubbleObject bubble)
+    {
+        Debug.Log("hi");
+        effectBubbles.Remove(bubble);
+
+        if (effectBubbles.Count == 0)
+        {
+            SetBubbleParentY();
+        }
+    }
     public int TargetX => targetX;
     public int TargetY => targetY;
     public float Horizontal
@@ -47,8 +59,8 @@ public class GameManager : Singleton<GameManager>
     }
     public void RemoveDropBubble(BubbleObject bubble)
     { 
-        dropBubbles.Remove(bubble);
-        if (dropBubbles.Count == 0)
+        effectBubbles.Remove(bubble);
+        if (effectBubbles.Count == 0)
         {
             EndPhase();
         }
@@ -511,7 +523,7 @@ public class GameManager : Singleton<GameManager>
     void CheckBubbleRoot()
     {
         visitBubbles.Clear();
-        dropBubbles.Clear();
+        effectBubbles.Clear();
 
         foreach (var item in bubbles.Values)
         {
@@ -543,7 +555,7 @@ public class GameManager : Singleton<GameManager>
             closeBubbles.Clear();
         }
 
-        if (dropBubbles.Count == 0)
+        if (effectBubbles.Count == 0)
         {
             EndPhase();
         }
@@ -555,7 +567,7 @@ public class GameManager : Singleton<GameManager>
         {
             if (bubbles.ContainsKey(bubbleObjects[i].Grid))
             {
-                dropBubbles.Add(bubbleObjects[i]);
+                effectBubbles.Add(bubbleObjects[i]);
                 bubbleObjects[i].OnDrop();
             }
         }
@@ -620,14 +632,29 @@ public class GameManager : Singleton<GameManager>
         switch (mode)
         {
             case GameMode.Normal:
-                bubbleParent.transform.DOLocalMoveY(GetY() * bubbleSize, .3f).SetEase(Ease.OutBack).OnComplete(() => { status = GameStatus.Play; });
+                SetBubbleParentY();
                 break;
             case GameMode.Boss:
                 BubbleObject bubbleObject = bubbles[new Vector2Int((TargetX / 2 + 1) - 2, 1)];
+                AddEffectBubbles(bubbleObject);
                 bubbleObject.OnEnd();
                 bubbleObject = bubbles[new Vector2Int((TargetX / 2 + 1) + 2, 1)];
+                AddEffectBubbles(bubbleObject);
                 bubbleObject.OnEnd();
+                break;
+            default:
+                break;
+        }
+    }
 
+    void SetBubbleParentY()
+    {
+        switch (mode)
+        {
+            case GameMode.Normal:
+                bubbleParent.transform.DOLocalMoveY(GetY() * bubbleSize, .3f).SetEase(Ease.OutBack).OnComplete(() => { status = GameStatus.Play; });
+                break;
+            case GameMode.Boss:
                 int y = GetY();
 
                 if (y < targetY)
@@ -638,7 +665,6 @@ public class GameManager : Singleton<GameManager>
                 {
                     bubbleParent.transform.DOLocalMoveY(GetY() * bubbleSize, .3f).SetEase(Ease.OutBack).OnComplete(() => { status = GameStatus.Play; });
                 }
-
                 break;
             default:
                 break;
@@ -677,6 +703,11 @@ public class GameManager : Singleton<GameManager>
             CheckShootBubble();
             CreateShootBubble();
             CheckStage();
+
+            if (effectBubbles.Count == 0)
+            {
+                status = GameStatus.Play;
+            }
         }
     }
 
@@ -756,8 +787,6 @@ public class GameManager : Singleton<GameManager>
                 bubbleBoss.Hit();
                 break;
             case BubbleProperty.CollisionBubble:
-                break;
-            case BubbleProperty.Rescue:
                 break;
             default:
                 break;
