@@ -75,7 +75,7 @@ public class BubbleObject : MonoBehaviour
             return;
         }
 
-        transform.position += normal * Time.fixedDeltaTime * 8f;
+        transform.position += normal * Time.deltaTime * 15f;
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
@@ -104,6 +104,11 @@ public class BubbleObject : MonoBehaviour
             GameManager.Instance.AddSkillGauge();
             GameManager.Instance.RemoveDropBubble(this);
             ResourcesManager.Instance.Push(name, gameObject);
+
+            for (int i = 0; i < properties.Count; i++)
+            {
+                GameManager.Instance.ActiveProperty(properties[i]);
+            }
         }
     }
 
@@ -152,11 +157,6 @@ public class BubbleObject : MonoBehaviour
             bubbleObject.CheckBubble(this);
             bubbleObject = GameManager.Instance.Bubbles[new Vector2Int((GameManager.Instance.TargetX / 2 + 1) + 2, 1)] as BubblePath;
             bubbleObject.CheckBubble(this);
-        }
-
-        for (int i = 0; i < properties.Count; i++)
-        {
-            GameManager.Instance.ActiveProperty(properties[i]);
         }
 
         transform.parent = GameManager.Instance.GameObjectParent;

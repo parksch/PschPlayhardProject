@@ -57,7 +57,6 @@ public class BubblePath : BubbleObject
 
     public override void OnCreate()
     {
-
         while (true)
         {
             int rand = Random.Range(0, 10);
@@ -244,7 +243,7 @@ public class BubblePath : BubbleObject
 
                 GameManager.Instance.Bubbles[bubbleObjects[i].Grid] = bubbleObjects[i];
             }
-
         }
+
     }
 }

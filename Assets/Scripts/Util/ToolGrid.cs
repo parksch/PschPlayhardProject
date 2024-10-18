@@ -1,11 +1,8 @@
 using JsonClass;
-using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
-using Unity.VisualScripting.Antlr3.Runtime.Tree;
-using UnityEditor.EditorTools;
 using UnityEngine;
 
+#if UNITY_EDITOR
 public class ToolGrid : MonoBehaviour
 {
     public int gridX;
@@ -213,3 +210,4 @@ public class ToolGrid : MonoBehaviour
 
     }
 }
+#endif

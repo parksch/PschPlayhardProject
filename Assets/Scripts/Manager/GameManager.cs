@@ -4,12 +4,14 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-
+using DG.Tweening;
+using System.Resources;
 
 public class GameManager : Singleton<GameManager>
 {
     [SerializeField] GameStatus status;
     [SerializeField] GameMode mode;
+    [SerializeField] GameWall wall;
     [SerializeField] GameObject bubbleGameObject;
     [SerializeField] Transform gameObjectParent;
     [SerializeField] Transform bubbleParent;
@@ -51,7 +53,6 @@ public class GameManager : Singleton<GameManager>
             EndPhase();
         }
     }
-
     public void OnClickSkill()
     {
         if (status != GameStatus.Play)
@@ -77,7 +78,6 @@ public class GameManager : Singleton<GameManager>
 
         fillImage.fillAmount = (float)currentSkillGauge / skillGauge;
     }
-
     public void AddSkillGauge(int num = 1)
     {
         currentSkillGauge += num;
@@ -99,7 +99,6 @@ public class GameManager : Singleton<GameManager>
     }
     public float CurrentBubbleRadius => shootBubbles[0].Radius;
     public Dictionary<Vector2Int, BubbleObject> Bubbles => bubbles;
-
     void CreateSkillBubble()
     {
         JsonClass.BubbleData bubbleData = ScriptableManager.Instance.bubbleDataScriptable.bubbleData.Find(x => x.index == 9);
@@ -107,16 +106,13 @@ public class GameManager : Singleton<GameManager>
         bubbleObject.transform.parent = gameObjectParent;
         bubbleObject.Set(bubbleData, Vector2Int.zero, true);
         bubbleObject.gameObject.SetActive(true);
-        
-        if (bubbleCount < 2)
+
+        if (shootBubbles[1] != null)
         {
-            shootBubbles[1] = bubbleObject;
-        }
-        else 
-        {
-            shootBubbles[1] = bubbleObject;
+            ResourcesManager.Instance.Push(shootBubbles[1].name, shootBubbles[1].gameObject);
         }
 
+        shootBubbles[1] = bubbleObject;
         OnClickChangeBubble();
     }
 
@@ -155,6 +151,8 @@ public class GameManager : Singleton<GameManager>
         targetY = mapData.y;
         bubbleCount = mapData.bubbleCount;
         mode = mapData.GameMode();
+        bubbleSize = (float)Horizontal / targetX;
+        wall.Set(horizontal/2, bubbleSize);
         CreateBubbles(mapData.layouts);
         CheckShootBubble();
         CreateShootBubble();
@@ -289,6 +287,8 @@ public class GameManager : Singleton<GameManager>
 
     void CreateBubbles(List<JsonClass.Layouts> _bubbles)
     {
+        bubbleParent.transform.position = Vector3.zero;
+
         if (bubbles.Count > 0)
         {
             foreach (var item in bubbles)
@@ -297,8 +297,6 @@ public class GameManager : Singleton<GameManager>
             }
             bubbles.Clear();
         }
-
-        bubbleSize = (float)Horizontal / targetX;
 
         foreach (JsonClass.Layouts layout in _bubbles)
         {
@@ -622,7 +620,7 @@ public class GameManager : Singleton<GameManager>
         switch (mode)
         {
             case GameMode.Normal:
-                bubbleParent.transform.position = Vector3.up * GetY() * bubbleSize;
+                bubbleParent.transform.DOLocalMoveY(GetY() * bubbleSize, .3f).SetEase(Ease.OutBack).OnComplete(() => { status = GameStatus.Play; });
                 break;
             case GameMode.Boss:
                 BubbleObject bubbleObject = bubbles[new Vector2Int((TargetX / 2 + 1) - 2, 1)];
@@ -634,11 +632,11 @@ public class GameManager : Singleton<GameManager>
 
                 if (y < targetY)
                 {
-                    bubbleParent.transform.position = Vector3.up * targetY * bubbleSize;
+                    bubbleParent.transform.DOLocalMoveY(TargetY * bubbleSize, .3f).SetEase(Ease.OutBack).OnComplete(() => { status = GameStatus.Play; });
                 }
                 else
                 {
-                    bubbleParent.transform.position = Vector3.up * GetY() * bubbleSize;
+                    bubbleParent.transform.DOLocalMoveY(GetY() * bubbleSize, .3f).SetEase(Ease.OutBack).OnComplete(() => { status = GameStatus.Play; });
                 }
 
                 break;
@@ -678,10 +676,9 @@ public class GameManager : Singleton<GameManager>
         }
         else
         {
-            CheckStage();
             CheckShootBubble();
             CreateShootBubble();
-            status = GameStatus.Play;
+            CheckStage();
         }
     }
 

@@ -895,8 +895,8 @@ MonoBehaviour:
       bubble: 1
   - x: 9
     y: 7
-    stage: 1
-    next: 0
+    stage: 6
+    next: 6
     name: stagename
     gameMode: 2
     bubbleCount: 20

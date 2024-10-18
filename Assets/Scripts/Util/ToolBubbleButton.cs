@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+#if UNITY_EDITOR
 public class ToolBubbleButton : MonoBehaviour
 {
     [SerializeField] Image sprite;
@@ -22,3 +23,4 @@ public class ToolBubbleButton : MonoBehaviour
         ToolManager.Instance.SetCurrentBubble(target);
     }
 }
+# endif

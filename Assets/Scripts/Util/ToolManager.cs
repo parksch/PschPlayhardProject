@@ -7,6 +7,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.IO;
 using ClientEnum;
+#if UNITY_EDITOR
 
 public class ToolManager : Singleton<ToolManager>
 {
@@ -484,3 +485,5 @@ public class ToolManager : Singleton<ToolManager>
         toolGrid.CreateBoss();
     }
 }
+
+#endif 

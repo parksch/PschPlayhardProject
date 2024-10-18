@@ -21,8 +21,8 @@ public class BubbleSkill : BubbleObject
                     continue;
                 }
 
-                bool isOdd = Grid.x % 2 == 1;
-                int xOffset = isOdd && (y == 1 || y == -1)? 1 : 0 ;
+                bool isOdd = Grid.y % 2 == 1;
+                int xOffset = isOdd && (y == 1 || y == -1) ? 1 : 0 ;
 
                 if (GameManager.Instance.Bubbles.ContainsKey(new Vector2Int(Grid.x + x + xOffset, Grid.y +y)))
                 {

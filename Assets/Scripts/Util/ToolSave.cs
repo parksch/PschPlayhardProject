@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+#if UNITY_EDITOR
 public class ToolSave : MonoBehaviour
 {
     [SerializeField] Text text;
@@ -18,3 +19,4 @@ public class ToolSave : MonoBehaviour
         ToolManager.Instance.LoadMap(target);
     }
 }
+#endif
