@@ -36,7 +36,6 @@ public class GameManager : Singleton<GameManager>
     public void AddEffectBubbles(BubbleObject bubble) => effectBubbles.Add(bubble);
     public void RemoveEffectBubbles(BubbleObject bubble)
     {
-        Debug.Log("hi");
         effectBubbles.Remove(bubble);
 
         if (effectBubbles.Count == 0)
