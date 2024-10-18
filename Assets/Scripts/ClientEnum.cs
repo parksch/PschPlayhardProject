@@ -13,7 +13,6 @@ namespace ClientEnum
 	{
 		Normal = 1,
 		Boss,
-        Rescue
     }
 
 	public enum Bubble

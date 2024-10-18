@@ -13,7 +13,7 @@ public class ToolManager : Singleton<ToolManager>
 {
     static string jsonDatapath = "Assets/JsonFiles";
 
-    public List<GirdRow> gridRow;
+    public Dictionary<Vector2Int, ToolGrid> gridDict = new Dictionary<Vector2Int, ToolGrid>();
     public List<ToolGrid> visitGrid = new List<ToolGrid>();
     public List<ToolGrid> closeGrid = new List<ToolGrid>();
     public List<ToolGrid> finishedGrid = new List<ToolGrid>();
@@ -48,7 +48,7 @@ public class ToolManager : Singleton<ToolManager>
     }
 
     [System.Serializable]
-    public class GirdRow
+    public class GridRow
     {
         public List<ToolGrid> toolGrids = new List<ToolGrid>();
     }
@@ -110,7 +110,6 @@ public class ToolManager : Singleton<ToolManager>
     {
         for (int i = 0; i < maxY; i++)
         {
-            gridRow.Add(new GirdRow());
             gridParent.transform.position += Vector3.up;
             for (int j = 0; j < maxX -(i % 2 == 0 ? 0: -1); j++)
             {
@@ -120,7 +119,7 @@ public class ToolManager : Singleton<ToolManager>
                 go.transform.parent = gridParent.transform;
                 toolGrid.gridX = j + 1;
                 toolGrid.gridY = i + 1;
-                gridRow[i].toolGrids.Add(toolGrid);
+                gridDict[new Vector2Int(toolGrid.gridX, toolGrid.gridY)] = toolGrid;
                 if (toolGrid.gridY == maxY)
                 {
                     toolGrid.SetGreen();
@@ -185,26 +184,26 @@ public class ToolManager : Singleton<ToolManager>
 
     public ToolGrid FindToolGridAt(int x, int y)
     {
-        foreach (var row in gridRow)
+        if (!gridDict.ContainsKey(new Vector2Int(x,y)))
         {
-            foreach (var tool in row.toolGrids)
-            {
-                if (tool.gridX == x && tool.gridY == y)
-                    return tool;  
-            }
+            return null;
         }
-        return null;
+
+        return gridDict[new Vector2Int(x, y)];
     }
 
-    public void VisitBubble(ToolGrid grid)
+    public void VisitBubble()
     {
         closeGrid.Clear();
         visitGrid.Clear();
         finishedGrid.Clear();
 
-        foreach (var item in grid.GetAdjacentGrid())
+        foreach (var item in gridDict.Values)
         {
-            visitGrid.Add(item);
+            if (item.isBubble())
+            {
+                visitGrid.Add(item);
+            }
         }
 
         for (int i = 0; i < visitGrid.Count; i++)
@@ -212,17 +211,23 @@ public class ToolManager : Singleton<ToolManager>
             closeGrid.Clear();
             bool result = visitGrid[i].VisitBubble();
 
+            if (visitGrid.Count > 0)
+            {
+                visitGrid.RemoveAt(i);
+                i--;
+            }
+
             if (!result)
             {
                 foreach (var item in closeGrid)
                 {
+                    if (visitGrid.Contains(item))
+                    {
+                        visitGrid.Remove(item);
+                    }
                     item.SetWhite();
                 }
             }
-
-            finishedGrid.Add(visitGrid[i]);
-            visitGrid.RemoveAt(i);
-            i--;
         }
 
         CheckBubble();
@@ -230,43 +235,38 @@ public class ToolManager : Singleton<ToolManager>
 
     public void CheckBubble()
     {
-        foreach (var row in gridRow)
+        foreach (var item in gridDict.Values)
         {
-            foreach (var tool in row.toolGrids)
+            if (item.bubble.index == 0 && item.gridY != maxY)
             {
-                if (tool.bubble.index == 0 && tool.gridY != maxY)
-                {
-                    tool.SetWhite();
-                }
+                item.SetWhite();
             }
         }
 
-        foreach (var row in gridRow)
+        foreach (var tool in gridDict.Values)
         {
-            foreach (var tool in row.toolGrids)
+            if (tool.gridY == maxY && tool.bubble.index == 0)
             {
-                if (tool.gridY == maxY && tool.bubble.index == 0)
-                {
-                    tool.SetGreen();
-                }
-                else if(tool.bubble.index != 0)
-                {
-                    tool.OnClickButton();
-                }
+                tool.SetGreen();
+            }
+            else if (tool.bubble.index != 0)
+            {
+                tool.OnClickButton();
             }
         }
+
     }
 
-    public bool IsValidPosition(int _x, int _y, int i, int j)
+    public bool IsValidPosition(int _x, int _y, int xOffset, int yOffset)
     {
-        if (!isBubble(_x + j, _y + i))
+        if (!isBubble(_x + xOffset, _y + yOffset))
             return false;
 
         bool isOddRow = (_y % 2 != 0);
 
-        if (i == 1 || i == -1)
+        if (yOffset == 1 || yOffset == -1)
         {
-            return (isOddRow && j > -1) || (!isOddRow && j < 1);
+            return (isOddRow && xOffset > -1) || (!isOddRow && xOffset < 1);
         }
 
         return true;
@@ -274,15 +274,12 @@ public class ToolManager : Singleton<ToolManager>
 
     void DestroyGrid()
     {
-        for (int i = 0; i < gridRow.Count; i++)
+        foreach (var item in gridDict.Values)
         {
-            for (int j = 0; j < gridRow[i].toolGrids.Count; j++)
-            {
-                Destroy(gridRow[i].toolGrids[j].gameObject);
-            }
+            Destroy(item.gameObject);
         }
 
-        gridRow.Clear();
+        gridDict.Clear();
     }
 
     void RemoveSaveButton()
@@ -315,6 +312,7 @@ public class ToolManager : Singleton<ToolManager>
         }
 
         DestroyGrid();
+
         gameMode = mapData.gameMode;
         maxX = mapData.x;
         maxY = mapData.y;
@@ -368,20 +366,14 @@ public class ToolManager : Singleton<ToolManager>
 
         mapData.layouts.Clear();
 
-        for (int i = 0; i < gridRow.Count; i++)
+        foreach (var item in gridDict.Values)
         {
-            for (int j = 0; j < gridRow[i].toolGrids.Count; j++)
-            {
-                if (gridRow[i].toolGrids[j].bubble.index != 0)
-                {
-                    ToolGrid toolGrid = gridRow[i].toolGrids[j];
-                    JsonClass.Layouts layout = new Layouts();
-                    layout.x = toolGrid.gridX;
-                    layout.y = toolGrid.gridY;
-                    layout.bubble = toolGrid.bubble.index;
-                    mapData.layouts.Add(layout);
-                }
-            }
+            ToolGrid toolGrid = item;
+            JsonClass.Layouts layout = new Layouts();
+            layout.x = toolGrid.gridX;
+            layout.y = toolGrid.gridY;
+            layout.bubble = toolGrid.bubble.index;
+            mapData.layouts.Add(layout);
         }
     }
 
@@ -466,7 +458,6 @@ public class ToolManager : Singleton<ToolManager>
 
         for (int y = 0; y < maxY; y++)
         {
-            gridRow.Add(new GirdRow());
             gridParent.transform.position += Vector3.up;
             for (int x = 0; x < maxX - (y % 2 == 0 ? 0 : -1); x++)
             {
@@ -477,7 +468,7 @@ public class ToolManager : Singleton<ToolManager>
                 toolGrid.gridX = x + 1;
                 toolGrid.gridY = y + 1;
 
-                gridRow[y].toolGrids.Add(toolGrid);
+                gridDict[new Vector2Int(toolGrid.gridX, toolGrid.gridY)] = toolGrid;
             }
         }
 

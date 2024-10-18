@@ -27,7 +27,7 @@ public class DataManager : Singleton<DataManager>
     protected override void Awake()
     {
         base.Awake();
-
+        Application.targetFrameRate = 60;
     }
 
     private void Start()

@@ -640,8 +640,6 @@ public class GameManager : Singleton<GameManager>
                 }
 
                 break;
-            case GameMode.Rescue:
-                break;
             default:
                 break;
         }
@@ -694,8 +692,6 @@ public class GameManager : Singleton<GameManager>
             case GameMode.Boss:
                 BubbleBoss bubbleBoss = bubbles[new Vector2Int(targetX / 2 + 1, 1)] as BubbleBoss;
                 result = bubbleBoss.isDeath; 
-                break;
-            case GameMode.Rescue:
                 break;
             default:
                 break;
