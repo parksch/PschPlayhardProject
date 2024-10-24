@@ -30,11 +30,6 @@ public class DataManager : Singleton<DataManager>
         Application.targetFrameRate = 60;
     }
 
-    private void Start()
-    {
-        
-    }
-
     public void Init()
     {
         currentStage = 1;

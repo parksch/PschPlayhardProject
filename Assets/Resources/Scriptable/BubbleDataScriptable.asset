@@ -53,3 +53,35 @@ MonoBehaviour:
     atlas: Bubbles
     sprite: 10
     prefab: Bubble
+  - index: 6
+    type: 3
+    contain: 
+    hp: 1
+    textKey: BossBubble
+    atlas: Bubbles
+    sprite: 11
+    prefab: PathBoss
+  - index: 7
+    type: 3
+    contain: 
+    hp: 1
+    textKey: LeftPath
+    atlas: Bubbles
+    sprite: 15
+    prefab: LeftPath
+  - index: 8
+    type: 3
+    contain: 
+    hp: 1
+    textKey: RightBubble
+    atlas: Bubbles
+    sprite: 15
+    prefab: RightBubble
+  - index: 9
+    type: 3
+    contain: 
+    hp: 1
+    textKey: SkillBubble
+    atlas: Bubbles
+    sprite: 5
+    prefab: SkillBubble

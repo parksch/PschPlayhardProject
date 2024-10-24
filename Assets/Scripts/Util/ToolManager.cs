@@ -41,6 +41,7 @@ public class ToolManager : Singleton<ToolManager>
 
     JsonClass.MapData currentMap;
 
+    [System.Serializable]
     public class VisitGrid
     {
         public ToolGrid current;
@@ -126,6 +127,62 @@ public class ToolManager : Singleton<ToolManager>
                 }
             }
         }
+    }
+    public void CreatePath()
+    {
+        if (maxX < 9)
+        {
+            maxX = 9;
+        }
+
+        if (maxX % 2 == 0)
+        {
+            maxX -= 1;
+        }
+
+        ToolGrid toolGrid = null;
+
+        for (int y = 0; y < maxY; y++)
+        {
+            gridParent.transform.position += Vector3.up;
+            for (int x = 0; x < maxX - (y % 2 == 0 ? 0 : -1); x++)
+            {
+                GameObject go = Instantiate(gridPrefab);
+                toolGrid = go.GetComponent<ToolGrid>();
+                go.transform.position = new Vector3(-((maxX / 2) + (y % 2 == 0 ? 0 : 0.5f)) + x, 0, 0);
+                go.transform.parent = gridParent.transform;
+                toolGrid.gridX = x + 1;
+                toolGrid.gridY = y + 1;
+
+                gridDict[new Vector2Int(toolGrid.gridX, toolGrid.gridY)] = toolGrid;
+            }
+        }
+
+        toolGrid = FindToolGridAt((maxX / 2) + 1, 1);
+        toolGrid.CreateBoss();
+    }
+    public void CheckBubble()
+    {
+        foreach (var item in gridDict.Values)
+        {
+            if (item.bubble.index == 0 && item.gridY != maxY)
+            {
+                item.SetWhite();
+            }
+        }
+
+        foreach (var tool in gridDict.Values)
+        {
+            if (tool.gridY == maxY && tool.bubble.index == 0)
+            {
+                tool.SetGreen();
+            }
+            else if (tool.bubble.index != 0)
+            {
+                tool.OnClickButton();
+            }
+        }
+
     }
 
     private void Update()
@@ -233,29 +290,6 @@ public class ToolManager : Singleton<ToolManager>
         CheckBubble();
     }
 
-    public void CheckBubble()
-    {
-        foreach (var item in gridDict.Values)
-        {
-            if (item.bubble.index == 0 && item.gridY != maxY)
-            {
-                item.SetWhite();
-            }
-        }
-
-        foreach (var tool in gridDict.Values)
-        {
-            if (tool.gridY == maxY && tool.bubble.index == 0)
-            {
-                tool.SetGreen();
-            }
-            else if (tool.bubble.index != 0)
-            {
-                tool.OnClickButton();
-            }
-        }
-
-    }
 
     public bool IsValidPosition(int _x, int _y, int xOffset, int yOffset)
     {
@@ -422,8 +456,9 @@ public class ToolManager : Singleton<ToolManager>
         string json = JsonConvert.SerializeObject(mapDatas);
         string path = string.Format("{0}/{1}", jsonDatapath, "MapData.json");
         File.WriteAllText(path, json.ToString(), Encoding.UTF8);
+
         AssetDatabase.Refresh();
-        EditorUtility.DisplayDialog("결과", "Scriptable 에서 Json 변환", "확인");
+        AssetDatabase.SaveAssets();
     }
 
     public void OnClickToggle()
@@ -442,39 +477,6 @@ public class ToolManager : Singleton<ToolManager>
         }
     }
 
-    public void CreatePath()
-    {
-        if (maxX < 9)
-        {
-            maxX = 9;
-        }
-
-        if (maxX % 2 == 0)
-        {
-            maxX -= 1;
-        }
-
-        ToolGrid toolGrid = null;
-
-        for (int y = 0; y < maxY; y++)
-        {
-            gridParent.transform.position += Vector3.up;
-            for (int x = 0; x < maxX - (y % 2 == 0 ? 0 : -1); x++)
-            {
-                GameObject go = Instantiate(gridPrefab);
-                toolGrid = go.GetComponent<ToolGrid>();
-                go.transform.position = new Vector3(-((maxX / 2) + (y % 2 == 0 ? 0 : 0.5f)) + x, 0, 0);
-                go.transform.parent = gridParent.transform;
-                toolGrid.gridX = x + 1;
-                toolGrid.gridY = y + 1;
-
-                gridDict[new Vector2Int(toolGrid.gridX, toolGrid.gridY)] = toolGrid;
-            }
-        }
-
-        toolGrid = FindToolGridAt((maxX / 2) + 1, 1);
-        toolGrid.CreateBoss();
-    }
 }
 
 #endif 
