@@ -52,7 +52,7 @@ MonoBehaviour:
     textKey: Random
     atlas: Bubbles
     sprite: 10
-    prefab: Bubble
+    prefab: RandomBubble
   - index: 6
     type: 3
     contain: 
